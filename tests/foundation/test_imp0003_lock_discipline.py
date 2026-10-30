@@ -337,6 +337,7 @@ def _run(args, **kw):
     return subprocess.run(args, capture_output=True, text=True, check=False, **kw)
 
 
+@pytest.mark.network
 @needs_network
 def test_uv_lock_check_passes_for_committed_lock(tmp_path):
     for name in ("pyproject.toml", "uv.lock"):
@@ -346,6 +347,7 @@ def test_uv_lock_check_passes_for_committed_lock(tmp_path):
     assert (tmp_path / "uv.lock").read_bytes() == LOCKFILE.read_bytes()
 
 
+@pytest.mark.network
 @needs_network
 def test_uv_lock_check_fails_when_pyproject_changes_without_relock(tmp_path):
     shutil.copy(REPO_ROOT / "uv.lock", tmp_path / "uv.lock")
@@ -357,6 +359,7 @@ def test_uv_lock_check_fails_when_pyproject_changes_without_relock(tmp_path):
     assert "needs to be updated" in result.stderr or "lockfile" in result.stderr.lower()
 
 
+@pytest.mark.network
 @needs_network
 def test_frozen_install_works_fully_offline_from_warm_cache(tmp_path):
     """Physical offline-compatibility proof for the dev group.
