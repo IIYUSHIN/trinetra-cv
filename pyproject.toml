@@ -131,7 +131,7 @@ known-first-party = ["trinetra"]
 [tool.ruff.lint.per-file-ignores]
 # Tests deliberately build hostile and malformed inputs.
 "tests/**" = [
-    "S101", "S105", "S106", "S108", "S301", "S603", "S607",  # assert, fake secrets, pickle round-trip, subprocess
+    "S101", "S104", "S105", "S106", "S108", "S301", "S603", "S607",  # assert, bind-host negatives, fake secrets, pickle, subprocess
     "ARG001", "ARG002", "N802", "N818",                     # fixtures/params, test-local exception names
     "RUF001", "RUF002", "RUF003",                           # intentional look-alike / non-ASCII characters
     "DTZ001",                                               # naive datetimes are negative test inputs

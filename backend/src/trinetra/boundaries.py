@@ -33,8 +33,12 @@ ALL_LAYERS = LAYERS
 # act: it must be listed here (BOOT-006 otherwise) and, if package code may
 # import it, also in ROOT_IMPORTABLE (ROOT-002 otherwise). `boundaries` is
 # tooling and is not importable from package code.
-ROOT_MODULES = frozenset({"errors", "boundaries", "settings", "timeutil", "digest", "jcs", "structured_log"})
-ROOT_IMPORTABLE = frozenset({"errors", "settings", "timeutil", "digest", "jcs", "structured_log"})
+ROOT_MODULES = frozenset(
+    {"errors", "boundaries", "settings", "timeutil", "digest", "jcs", "structured_log", "security"}
+)
+ROOT_IMPORTABLE = frozenset(
+    {"errors", "settings", "timeutil", "digest", "jcs", "structured_log", "security"}
+)
 ROOT_ATTRIBUTES = frozenset({"__version__"})  # `from trinetra import __version__`
 
 # Production code must never import these top-level packages (evaluation holds

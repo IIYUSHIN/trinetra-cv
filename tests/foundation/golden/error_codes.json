@@ -4,6 +4,7 @@
   "DIGEST_INVALID": "trinetra.digest.DigestError",
   "JCS_INVALID": "trinetra.jcs.JcsError",
   "LOG_INVALID": "trinetra.structured_log.LogError",
+  "SECURITY_INVALID": "trinetra.security.SecurityError",
   "TIME_INVALID": "trinetra.timeutil.TimeError",
   "TRINETRA_ERROR": "trinetra.errors.TrinetraError"
 }

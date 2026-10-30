@@ -19,8 +19,9 @@ logging" in I1 and forbids remote telemetry):
 * The formatter never raises: a record that cannot be rendered degrades to a
   fixed minimal line. Field *names* are validated at the call site
   (`log_event`) because a bad name is a programmer error.
-* Secret redaction helpers are a separate packet (IMP-0013); this module does
-  not claim to detect secrets in values.
+* Redaction (IMP-0013) is ON by default: credential shapes and sensitive field
+  names are masked before clipping. It is defence in depth, not a guarantee -
+  see `trinetra.security` for its documented limits.
 """
 
 from __future__ import annotations
@@ -38,6 +39,7 @@ from typing import IO, Any, Final
 
 from trinetra.errors import TrinetraError
 from trinetra.jcs import MAX_SAFE_INTEGER, canonicalize
+from trinetra.security import DEFAULT_REDACTOR, REDACTED, Redactor, is_sensitive_key
 from trinetra.timeutil import Clock, format_utc
 
 CORRELATION_ID_RE: Final = re.compile(r"[0-9a-f]{32}")
@@ -113,7 +115,7 @@ def _clip(text: str) -> str:
     return text
 
 
-def sanitize(value: Any, depth: int = 0) -> Any:
+def sanitize(value: Any, depth: int = 0, redactor: Redactor | None = None) -> Any:
     """Reduce any object to a JCS-safe, bounded value. Never raises.
 
     Unknown objects become ``"<TypeName>"`` - never ``repr()``, which can leak
@@ -128,11 +130,13 @@ def sanitize(value: Any, depth: int = 0) -> Any:
         return value if math.isfinite(value) else ("NaN" if math.isnan(value) else
                                                    ("Infinity" if value > 0 else "-Infinity"))
     if isinstance(value, str):
-        return _clip(str.__str__(value))
+        text = str.__str__(value)
+        # redact BEFORE clipping so a secret straddling the cut cannot leave a readable prefix
+        return _clip(redactor.redact_text(text) if redactor is not None else text)
     if depth >= MAX_DEPTH:
         return "<max-depth>"
     if isinstance(value, list | tuple):
-        items = [sanitize(v, depth + 1) for v in list(value)[:MAX_ITEMS]]
+        items = [sanitize(v, depth + 1, redactor) for v in list(value)[:MAX_ITEMS]]
         if len(value) > MAX_ITEMS:
             items.append(TRUNCATION_MARK)
         return items
@@ -142,7 +146,12 @@ def sanitize(value: Any, depth: int = 0) -> Any:
             if i >= MAX_ITEMS:
                 out["_truncated"] = True
                 break
-            out[_clip(k) if isinstance(k, str) else f"<{type(k).__name__}>"] = sanitize(v, depth + 1)
+            if isinstance(k, str):
+                safe_key = _clip(redactor.redact_text(k) if redactor is not None else k)
+            else:
+                safe_key = f"<{type(k).__name__}>"
+            masked = redactor is not None and is_sensitive_key(k)
+            out[safe_key] = REDACTED if masked else sanitize(v, depth + 1, redactor)
         return out
     return f"<{kind.__name__}>"
 
@@ -151,9 +160,10 @@ def sanitize(value: Any, depth: int = 0) -> Any:
 class JsonFormatter(logging.Formatter):
     """One canonical-JSON line per record; never raises."""
 
-    def __init__(self, clock: Clock | None = None) -> None:
+    def __init__(self, clock: Clock | None = None, redactor: Redactor | None = DEFAULT_REDACTOR) -> None:
         super().__init__()
         self._clock = clock
+        self._redactor = redactor
 
     def _timestamp(self, record: logging.LogRecord) -> str:
         moment = self._clock.now() if self._clock else datetime.fromtimestamp(record.created, UTC)
@@ -174,7 +184,7 @@ class JsonFormatter(logging.Formatter):
             "ts": self._timestamp(record),
             "level": record.levelname if record.levelname in LEVELS else "ERROR",
             "logger": _clip(record.name),
-            "message": _clip(message),
+            "message": _clip(self._redactor.redact_text(message) if self._redactor else message),
         }
         cid = current_correlation_id()
         if cid is not None:
@@ -183,7 +193,8 @@ class JsonFormatter(logging.Formatter):
         if isinstance(fields, Mapping):
             for key, value in fields.items():
                 if isinstance(key, str) and FIELD_NAME_RE.fullmatch(key) and key not in RESERVED_FIELDS:
-                    body[key] = sanitize(value)
+                    masked = self._redactor is not None and is_sensitive_key(key)
+                    body[key] = REDACTED if masked else sanitize(value, 0, self._redactor)
         if record.exc_info and record.exc_info[1] is not None:
             exc = record.exc_info[1]
             body["exc_type"] = _clip(type(exc).__name__)
@@ -221,6 +232,7 @@ def configure_logging(
     stream: IO[str] | None = None,
     logger_name: str = "trinetra",
     clock: Clock | None = None,
+    redactor: Redactor | None = DEFAULT_REDACTOR,
 ) -> logging.Handler:
     """Attach exactly one structured handler to `logger_name` (idempotent).
 
@@ -234,7 +246,7 @@ def configure_logging(
         logger.removeHandler(existing)
         existing.close()
     handler = logging.StreamHandler(stream if stream is not None else sys.stderr)
-    handler.setFormatter(JsonFormatter(clock))
+    handler.setFormatter(JsonFormatter(clock, redactor))
     setattr(handler, HANDLER_MARK, True)
     logger.addHandler(handler)
     logger.setLevel(LEVELS[level])
