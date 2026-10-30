@@ -1,0 +1,40 @@
+# Local secrets and credentials — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+**/secrets/**
+**/private_keys/**
+# Virtual environments and Python artifacts
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+# JavaScript artifacts
+node_modules/
+# Build outputs anchored to their workspaces so future source dirs named build/dist elsewhere stay trackable
+/backend/build/
+/backend/dist/
+/web/dist/
+/web/build/
+# Local IDE/system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+# Local databases and temporary outputs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.tmp
+*.swp
+# Explicitly do NOT ignore uv.lock or frozen specifications
