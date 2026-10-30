@@ -1,0 +1,76 @@
+{
+ "_comment": "Known-answer vectors. sha256 values were computed with hashlib (independent of trinetra); canonical strings follow RFC 8785 as written by hand. The unverified Appendix B row is deliberately absent.",
+ "jcs": [
+  {
+   "canonical": "{\"a\":[true,null,\"é\",1.5,0],\"b\":1}",
+   "canonical_sha256": "3944d8e013356bfe88d45c3ab7d4edfe93b653dcf8189f8b436e2b5f3ef434c5",
+   "id": "key-order-and-scalars",
+   "json": {
+    "a": [
+     true,
+     null,
+     "é",
+     1.5,
+     0
+    ],
+    "b": 1
+   }
+  },
+  {
+   "canonical": "{\"😀\":2,\"\":1}",
+   "canonical_sha256": "28c95d1bbb2209223307e62f489020e8f9e0cfa16adf2daf6d88127a1e8dd22a",
+   "id": "utf16-key-sort",
+   "json": {
+    "": 1,
+    "😀": 2
+   }
+  },
+  {
+   "canonical": "[1e+21,1e-7,100,0,4.5]",
+   "canonical_sha256": "116f41869664f515a04b70490e246ced52e7fef1ca3b7c742e595f6d4806609c",
+   "id": "number-forms",
+   "json": [
+    1e+21,
+    1e-07,
+    100.0,
+    -0.0,
+    4.5
+   ]
+  },
+  {
+   "canonical": "{\"s\":\"a\\\"b\\\\c\\n\\u0001\"}",
+   "canonical_sha256": "bbe54c9c73120828ff25c5eb31b59be40031eea10574421aadf601bb1ec76cf2",
+   "id": "escapes",
+   "json": {
+    "s": "a\"b\\c\n\u0001"
+   }
+  },
+  {
+   "canonical": "{\"x\":{},\"y\":[]}",
+   "canonical_sha256": "1b7f733917fd2737ccdc5466741173f4cfcf6b0f8e20b1626d7cce2e78d3ccfc",
+   "id": "empty-containers",
+   "json": {
+    "x": {},
+    "y": []
+   }
+  }
+ ],
+ "sha256": [
+  {
+   "id": "empty",
+   "input": {
+    "kind": "bytes_hex",
+    "value": ""
+   },
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "id": "abc",
+   "input": {
+    "kind": "bytes_hex",
+    "value": "616263"
+   },
+   "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  }
+ ]
+}
