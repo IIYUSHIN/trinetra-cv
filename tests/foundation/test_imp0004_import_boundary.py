@@ -164,8 +164,8 @@ LAYER_VIOLATIONS = {
     "exec_call": ("domain/x.py", "exec('1')\n", "DYN-001"),
     "type_checking_import_counts": (
         "domain/x.py",
-        "from typing import TYPE_CHECKING\n"
-        "if TYPE_CHECKING:\n    from trinetra.application import a\n",
+        ("from typing import TYPE_CHECKING\n"
+         "if TYPE_CHECKING:\n    from trinetra.application import a\n"),
         "DOM-001"),
     "function_local_import_counts": (
         "domain/x.py", "def f():\n    import fastapi\n", "DEP-002"),

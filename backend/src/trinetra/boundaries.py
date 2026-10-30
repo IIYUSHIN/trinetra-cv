@@ -28,6 +28,14 @@ LAYERS = frozenset({
 })
 ALL_LAYERS = LAYERS
 
+# Modules that live directly in the package root. Adding one is a deliberate
+# act: it must be listed here (BOOT-006 otherwise) and, if package code may
+# import it, also in ROOT_IMPORTABLE (ROOT-002 otherwise). `boundaries` is
+# tooling and is not importable from package code.
+ROOT_MODULES = frozenset({"errors", "boundaries"})
+ROOT_IMPORTABLE = frozenset({"errors"})
+ROOT_ATTRIBUTES = frozenset({"__version__"})  # `from trinetra import __version__`
+
 # Production code must never import these top-level packages (evaluation holds
 # hidden truth; runner is hostile-side code).
 FORBIDDEN_TOPLEVEL = frozenset({"trinetra_eval", "runner"})
@@ -107,6 +115,8 @@ def _imports(tree: ast.AST, package: tuple[str, ...]):
             else:
                 base = node.module or ""
             yield node.lineno, base
+            if any(alias.name == "*" for alias in node.names):
+                yield node.lineno, "*"
             if base == PACKAGE:  # `from trinetra import domain` imports a layer
                 for alias in node.names:
                     yield node.lineno, f"{PACKAGE}.{alias.name}"
@@ -118,6 +128,9 @@ def _dynamic_calls(tree: ast.AST):
             func = node.func
             name = func.id if isinstance(func, ast.Name) else (
                 func.attr if isinstance(func, ast.Attribute) else None)
+            if (name == "compile" and isinstance(func, ast.Attribute)
+                    and isinstance(func.value, ast.Name) and func.value.id == "re"):
+                continue  # re.compile is regex compilation, not code compilation
             if name in DYNAMIC_CALLS:
                 yield node.lineno, name
 
@@ -174,10 +187,12 @@ def check_tree(src_root: Path) -> list[Violation]:
                 out.append(Violation(shown, 0, "BOOT-005", "unexpected non-Python file"))
             continue
 
-        module, package = _module_for(rel)
+        _, package = _module_for(rel)
         # Files directly in the package root have layer None; files inside a
         # subdirectory belong to that directory's layer.
         layer = rel.parts[0] if len(rel.parts) > 1 else None
+        if layer is None and rel.name != "__init__.py" and rel.stem not in ROOT_MODULES:
+            out.append(Violation(shown, 0, "BOOT-006", f"unregistered root module {rel.stem!r}"))
         if layer is not None and layer not in LAYERS:
             continue  # already reported as an unknown layer (BOOT-003)
         try:
@@ -192,6 +207,9 @@ def check_tree(src_root: Path) -> list[Violation]:
             if name is None:
                 out.append(Violation(shown, lineno, "PARSE-002", "relative import escapes package"))
                 continue
+            if name == "*":
+                out.append(Violation(shown, lineno, "WILD-001", "wildcard import hides dependencies"))
+                continue
             out.extend(_classify(shown, lineno, name, layer, edges))
 
     cycle = _find_cycle(edges)
@@ -202,7 +220,7 @@ def check_tree(src_root: Path) -> list[Violation]:
 
 def _classify(shown, lineno, name, layer, edges) -> list[Violation]:
     top = name.split(".")[0]
-    bad = lambda rule, msg: [Violation(shown, lineno, rule, msg)]  # noqa: E731
+    bad = lambda rule, msg: [Violation(shown, lineno, rule, msg)]
     if top in FORBIDDEN_TOPLEVEL:
         return bad("EVAL-001", f"production code must not import {top!r}")
     if top == PACKAGE:
@@ -210,6 +228,10 @@ def _classify(shown, lineno, name, layer, edges) -> list[Violation]:
         target = parts[1] if len(parts) > 1 else None
         if target is None or target == layer:
             return []
+        if target in ROOT_MODULES or target in ROOT_ATTRIBUTES:
+            if target in ROOT_IMPORTABLE or target in ROOT_ATTRIBUTES:
+                return []
+            return bad("ROOT-002", f"root module {target!r} is not importable from package code")
         if target not in LAYERS:
             return bad("BOOT-003", f"import of unknown layer {target!r}")
         if layer is None:
