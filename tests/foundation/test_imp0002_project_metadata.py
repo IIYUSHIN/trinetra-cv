@@ -143,8 +143,17 @@ def check_pyproject(data: dict) -> list[str]:
         for entry in entries:
             if set(entry) & {"git", "url", "path", "workspace"}:
                 problems.append(f"tool.uv.sources.{name}: only index sources allowed")
-    if uv.get("package") is not False:
-        problems.append("tool.uv.package must be false until IMP-0004")
+    build = data.get("build-system", {})
+    if build.get("build-backend") != "uv_build":
+        problems.append("build-system.build-backend must be uv_build")
+    reqs = build.get("requires", [])
+    if len(reqs) != 1 or not reqs[0].startswith("uv_build>=") or "<" not in reqs[0]:
+        problems.append("build-system.requires must be one bounded uv_build range")
+    if uv.get("package") is False:
+        problems.append("tool.uv.package must not be false: backend package is built (IMP-0004)")
+    backend = uv.get("build-backend", {})
+    if backend.get("module-root") != "backend/src" or backend.get("module-name") != "trinetra":
+        problems.append("tool.uv.build-backend must map module trinetra at backend/src")
     return problems
 
 
@@ -311,9 +320,21 @@ NEGATIVE_CASES = {
         lambda d: d["project"].__setitem__("dynamic", ["dependencies"]),
         "must not be dynamic",
     ),
-    "package_flag_flipped_early": (
-        lambda d: d["tool"]["uv"].__setitem__("package", True),
-        "tool.uv.package must be false",
+    "package_flag_back_to_virtual": (
+        lambda d: d["tool"]["uv"].__setitem__("package", False),
+        "tool.uv.package must not be false",
+    ),
+    "wrong_build_backend": (
+        lambda d: d["build-system"].__setitem__("build-backend", "setuptools.build_meta"),
+        "build-backend must be uv_build",
+    ),
+    "unbounded_build_requirement": (
+        lambda d: d["build-system"].__setitem__("requires", ["uv_build"]),
+        "one bounded uv_build range",
+    ),
+    "wrong_module_root": (
+        lambda d: d["tool"]["uv"]["build-backend"].__setitem__("module-root", "src"),
+        "must map module trinetra at backend/src",
     ),
     "missing_project_table": (
         lambda d: d.pop("project"),

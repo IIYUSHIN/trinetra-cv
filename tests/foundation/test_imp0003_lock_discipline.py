@@ -25,6 +25,7 @@ from packaging.version import Version
 from test_imp0002_project_metadata import FORBIDDEN, PYPROJECT, REPO_ROOT, load
 
 LOCKFILE = REPO_ROOT / "uv.lock"
+ROOT_SOURCE = {"editable": "."}
 ALLOWED_REGISTRIES = {"https://pypi.org/simple"}
 ALLOWED_ARTIFACT_HOSTS = ("https://files.pythonhosted.org/",)
 HASH_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -94,10 +95,10 @@ def check_lock(lock: dict, pyproject: dict) -> list[str]:
     for pkg in packages:
         name = canonicalize_name(pkg.get("name", ""))
         source = pkg.get("source", {})
-        if source == {"virtual": "."}:
+        if source == ROOT_SOURCE:
             roots += 1
             if name != "trinetra-cv":
-                problems.append(f"virtual root must be trinetra-cv, got {name}")
+                problems.append(f"root package must be trinetra-cv, got {name}")
             continue
         label = f"{name}=={pkg.get('version')}"
         if set(source) != {"registry"} or source.get("registry") not in ALLOWED_REGISTRIES:
@@ -123,7 +124,7 @@ def check_lock(lock: dict, pyproject: dict) -> list[str]:
             if not HASH_RE.match(art.get("hash", "")):
                 problems.append(f"{label}: missing or malformed sha256 hash for {url[-40:]}")
     if roots != 1:
-        problems.append(f"expected exactly one virtual root package, found {roots}")
+        problems.append(f"expected exactly one root package, found {roots}")
     for name, versions in locked.items():
         if len(versions) != len(set(versions)):
             problems.append(f"{name}: duplicate locked version")
@@ -173,7 +174,7 @@ def test_lock_has_no_cuda_or_telemetry_packages():
 def test_every_artifact_is_hash_pinned():
     count = 0
     for pkg in load_lock()["package"]:
-        if pkg["source"] == {"virtual": "."}:
+        if pkg["source"] == ROOT_SOURCE:
             continue
         for art in [*pkg.get("wheels", []), *([pkg["sdist"]] if "sdist" in pkg else [])]:
             assert HASH_RE.match(art["hash"])
@@ -288,8 +289,8 @@ LOCK_NEGATIVE_CASES = {
     ),
     "second_root": (
         lambda lk: lk["package"].append(
-            {"name": "other", "version": "0", "source": {"virtual": "."}}),
-        "exactly one virtual root",
+            {"name": "other", "version": "0", "source": ROOT_SOURCE}),
+        "exactly one root package",
     ),
     "duplicate_locked_version": (
         lambda lk: lk["package"].append(copy.deepcopy(_pkg(lk, "pydantic"))),
@@ -367,16 +368,20 @@ def test_frozen_install_works_fully_offline_from_warm_cache(tmp_path):
     """
     for name in ("pyproject.toml", "uv.lock"):
         shutil.copy(REPO_ROOT / name, tmp_path / name)
+    shutil.copytree(REPO_ROOT / "backend" / "src", tmp_path / "backend" / "src",
+                    ignore=shutil.ignore_patterns("__pycache__"))
     cache = tmp_path / "cache"
     base = [UV, "sync", "--frozen", "--group", "dev", "--python", "3.12"]
-    env = {**os.environ, "UV_CACHE_DIR": str(cache), "UV_PROJECT_ENVIRONMENT": str(tmp_path / "v1")}
+    env = {**os.environ, "UV_CACHE_DIR": str(cache),
+           "UV_PROJECT_ENVIRONMENT": str(tmp_path / "v1")}
     warm = _run(base, cwd=tmp_path, env=env)
     assert warm.returncode == 0, warm.stderr
 
     env2 = {**env, "UV_PROJECT_ENVIRONMENT": str(tmp_path / "v2")}
     offline = _run([*base, "--offline"], cwd=tmp_path, env=env2)
     assert offline.returncode == 0, offline.stderr
-    probe = _run([str(tmp_path / "v2" / "bin" / "python"), "-c", "import pytest, hypothesis"])
+    probe = _run([str(tmp_path / "v2" / "bin" / "python"), "-c",
+                  "import pytest, hypothesis, pydantic, trinetra"])
     assert probe.returncode == 0, probe.stderr
 
     env3 = {**env, "UV_CACHE_DIR": str(tmp_path / "empty"),

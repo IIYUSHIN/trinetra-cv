@@ -558,7 +558,7 @@ wheels = [
 [[package]]
 name = "trinetra-cv"
 version = "0.0.0.dev0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
 ]

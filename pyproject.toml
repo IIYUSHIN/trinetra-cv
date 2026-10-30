@@ -25,6 +25,10 @@
 # torchvision BSD). hypothesis is MPL-2.0 and is a dev-only dependency that is
 # never redistributed. This is NOT a completed D40 license review.
 
+[build-system]
+requires = ["uv_build>=0.11,<0.12"]
+build-backend = "uv_build"
+
 [project]
 name = "trinetra-cv"
 version = "0.0.0.dev0"
@@ -86,6 +90,8 @@ required-version = ">=0.11"
 # Re-resolution can only see packages published on or before this instant, so a
 # later `uv lock` cannot silently drift. Bump deliberately, in its own commit.
 exclude-newer = "2026-10-31T00:00:00Z"
-# Virtual project until IMP-0004 creates backend/src/trinetra and switches
-# this to a built package. Nothing is built or installed from this repo yet.
-package = false
+
+[tool.uv.build-backend]
+# Src layout from Bible 134-155: the importable package is backend/src/trinetra.
+module-root = "backend/src"
+module-name = "trinetra"
