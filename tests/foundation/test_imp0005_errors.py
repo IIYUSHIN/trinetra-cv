@@ -267,9 +267,20 @@ def test_property_round_trip_is_lossless_and_json_safe(message, details):
 
 
 # ------------------------------------------------------ stability (golden)
+def _import_every_production_module():
+    import importlib
+    import pkgutil
+
+    import trinetra
+
+    for info in pkgutil.walk_packages(trinetra.__path__, "trinetra."):
+        importlib.import_module(info.name)
+
+
 def test_golden_manifest_matches_registered_production_codes():
     """Stable means stable: a released code may not vanish, move or be renamed,
     and a new production code must be added to the manifest consciously."""
+    _import_every_production_module()
     golden = json.loads(GOLDEN.read_text())
     production = {
         code: qualified_name(cls)

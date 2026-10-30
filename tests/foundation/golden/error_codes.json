@@ -1,3 +1,5 @@
 {
+  "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
+  "CONFIG_INVALID": "trinetra.settings.ConfigError",
   "TRINETRA_ERROR": "trinetra.errors.TrinetraError"
 }
