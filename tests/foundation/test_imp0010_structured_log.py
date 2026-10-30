@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+
 from trinetra.digest import DigestError
 from trinetra.errors import TrinetraError
 from trinetra.structured_log import (
@@ -126,7 +127,8 @@ def test_non_trinetra_exception_has_no_code(sink):
     except ValueError:
         logger.exception("x")
     [record] = lines(stream)
-    assert record["exc_type"] == "ValueError" and "exc_code" not in record and "secret" not in stream.getvalue()
+    assert record["exc_type"] == "ValueError" and "exc_code" not in record
+    assert "secret" not in stream.getvalue()
 
 
 def test_configure_is_idempotent_single_handler_no_propagation():
@@ -321,12 +323,14 @@ def test_error_types():
 
 
 # ------------------------------------------------------------------ properties
-@given(st.text(max_size=300), st.dictionaries(st.from_regex(r"[a-z][a-z0-9_]{0,10}", fullmatch=True)
-                                              .filter(lambda k: k not in {"ts", "level", "logger", "message",
-                                                                          "event", "correlation_id",
-                                                                          "exc_type", "exc_code"}),
-                                              st.one_of(st.none(), st.integers(), st.floats(), st.text(max_size=60),
-                                                        st.lists(st.integers(), max_size=5)), max_size=6))
+RESERVED = {"ts", "level", "logger", "message", "event", "correlation_id", "exc_type", "exc_code"}
+field_names = st.from_regex(r"[a-z][a-z0-9_]{0,10}", fullmatch=True).filter(lambda k: k not in RESERVED)
+field_values = st.one_of(
+    st.none(), st.integers(), st.floats(), st.text(max_size=60), st.lists(st.integers(), max_size=5)
+)
+
+
+@given(st.text(max_size=300), st.dictionaries(field_names, field_values, max_size=6))
 def test_property_any_message_and_fields_yield_exactly_one_valid_json_line(message, fields):
     stream = io.StringIO()
     name = "trinetra.test.prop"

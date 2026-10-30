@@ -70,7 +70,9 @@ def parse_digest(text: object) -> bytes:
     if not isinstance(text, str):
         raise DigestError("digest must be a string", details={"name": "digest"})
     if not text.startswith(PREFIX) or not _HEX_RE.fullmatch(text, len(PREFIX)):
-        raise DigestError("digest must be 'sha256:' followed by 64 lower-case hex", details={"name": "digest"})
+        raise DigestError(
+            "digest must be 'sha256:' followed by 64 lower-case hex", details={"name": "digest"}
+        )
     return bytes.fromhex(text[len(PREFIX):])
 
 
@@ -135,7 +137,11 @@ def sha256_file(
     """
     if isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or max_bytes < 0:
         raise DigestError("max_bytes must be a non-negative int", details={"name": "max_bytes"})
-    if isinstance(chunk_size, bool) or not isinstance(chunk_size, int) or not 1 <= chunk_size <= MAX_CHUNK_SIZE:
+    if (
+        isinstance(chunk_size, bool)
+        or not isinstance(chunk_size, int)
+        or not 1 <= chunk_size <= MAX_CHUNK_SIZE
+    ):
         raise DigestError(f"chunk_size must be in 1..{MAX_CHUNK_SIZE}", details={"name": "chunk_size"})
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
     try:

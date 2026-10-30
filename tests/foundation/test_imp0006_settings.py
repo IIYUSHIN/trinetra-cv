@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import json
 import os
@@ -10,6 +11,7 @@ import pickle
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+
 from trinetra.errors import TrinetraError
 from trinetra.settings import (
     MAX_FILE_BYTES,
@@ -340,7 +342,5 @@ def test_property_env_float_round_trip(x):
 def test_property_arbitrary_env_text_never_crashes_untyped(text):
     """Any string either loads or raises ConfigError - never another exception."""
     for kind in (int, float, bool, str):
-        try:
+        with contextlib.suppress(ConfigError):
             load_settings([Setting("v", kind)], env={"TRINETRA_V": text})
-        except ConfigError:
-            pass

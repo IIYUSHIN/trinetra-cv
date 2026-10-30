@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import ast
 import sys
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -99,7 +100,7 @@ def _module_for(rel: Path) -> tuple[tuple[str, ...], tuple[str, ...]]:
     return module, package
 
 
-def _imports(tree: ast.AST, package: tuple[str, ...]):
+def _imports(tree: ast.AST, package: tuple[str, ...]) -> Iterator[tuple[int, str | None]]:
     """Yield (lineno, absolute dotted name) or (lineno, None) when unresolvable."""
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -122,7 +123,7 @@ def _imports(tree: ast.AST, package: tuple[str, ...]):
                     yield node.lineno, f"{PACKAGE}.{alias.name}"
 
 
-def _dynamic_calls(tree: ast.AST):
+def _dynamic_calls(tree: ast.AST) -> Iterator[tuple[int, str]]:
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
             func = node.func
@@ -201,16 +202,16 @@ def check_tree(src_root: Path) -> list[Violation]:
             out.append(Violation(shown, 0, "PARSE-001", f"cannot analyse: {type(exc).__name__}"))
             continue
 
-        for lineno, name in _dynamic_calls(tree):
-            out.append(Violation(shown, lineno, "DYN-001", f"dynamic code/import via {name}()"))
-        for lineno, name in _imports(tree, package):
-            if name is None:
+        for lineno, call_name in _dynamic_calls(tree):
+            out.append(Violation(shown, lineno, "DYN-001", f"dynamic code/import via {call_name}()"))
+        for lineno, imported in _imports(tree, package):
+            if imported is None:
                 out.append(Violation(shown, lineno, "PARSE-002", "relative import escapes package"))
                 continue
-            if name == "*":
+            if imported == "*":
                 out.append(Violation(shown, lineno, "WILD-001", "wildcard import hides dependencies"))
                 continue
-            out.extend(_classify(shown, lineno, name, layer, edges))
+            out.extend(_classify(shown, lineno, imported, layer, edges))
 
     cycle = _find_cycle(edges)
     if cycle:
@@ -218,9 +219,13 @@ def check_tree(src_root: Path) -> list[Violation]:
     return sorted(out)
 
 
-def _classify(shown, lineno, name, layer, edges) -> list[Violation]:
-    top = name.split(".")[0]
-    bad = lambda rule, msg: [Violation(shown, lineno, rule, msg)]
+def _classify(
+    shown: str, lineno: int, name: str, layer: str | None, edges: set[tuple[str, str]]
+) -> list[Violation]:
+    top = name.split(".", maxsplit=1)[0]
+    def bad(rule: str, msg: str) -> list[Violation]:
+        return [Violation(shown, lineno, rule, msg)]
+
     if top in FORBIDDEN_TOPLEVEL:
         return bad("EVAL-001", f"production code must not import {top!r}")
     if top == PACKAGE:

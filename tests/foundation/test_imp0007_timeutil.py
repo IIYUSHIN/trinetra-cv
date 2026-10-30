@@ -7,6 +7,7 @@ from datetime import UTC, datetime, timedelta, timezone
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+
 from trinetra.errors import TrinetraError
 from trinetra.timeutil import (
     MAX_EPOCH_SECONDS,

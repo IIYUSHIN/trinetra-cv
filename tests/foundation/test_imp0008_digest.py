@@ -8,6 +8,7 @@ import os
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+
 from trinetra.digest import (
     DIGEST_SIZE,
     MAX_CHUNK_SIZE,

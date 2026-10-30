@@ -177,6 +177,9 @@ class Settings(Mapping[str, SettingValue]):
     """Immutable, attribute-readable result of `load_settings`."""
 
     __slots__ = ("_secret", "_sources", "_values")
+    _values: Mapping[str, SettingValue]
+    _sources: Mapping[str, str]
+    _secret: frozenset[str]
 
     def __init__(
         self,
@@ -282,25 +285,25 @@ def load_settings(
     if file is not None:
         table = _read_file(Path(file))
         for key, raw in table.items():
-            spec = by_name.get(key)
-            if spec is None:
+            declared = by_name.get(key)
+            if declared is None:
                 raise _fail(str(key), "unknown setting in file")
-            if spec.secret:
+            if declared.secret:
                 raise _fail(key, "secret settings must come from the environment, not a file")
-            values[key] = spec.check(raw)
+            values[key] = declared.check(raw)
             sources[key] = "file"
 
     environment = os.environ if env is None else env
     for var, text in environment.items():
         if not var.startswith(env_prefix) or var in ignore_env:
             continue
-        spec = env_names.get(var)
-        if spec is None:
+        target = env_names.get(var)
+        if target is None:
             raise _fail(var, "unknown prefixed environment variable")
         if not isinstance(text, str):
-            raise _fail(spec.name, "environment value must be str")
-        values[spec.name] = spec.parse_env(text)
-        sources[spec.name] = "env"
+            raise _fail(target.name, "environment value must be str")
+        values[target.name] = target.parse_env(text)
+        sources[target.name] = "env"
 
     for name, spec in by_name.items():
         if name in values:

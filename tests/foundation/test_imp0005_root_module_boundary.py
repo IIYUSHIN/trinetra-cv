@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 from test_imp0004_import_boundary import EXPECTED_DIRS, SRC, build, rules
+
 from trinetra.boundaries import LAYERS, ROOT_IMPORTABLE, ROOT_MODULES, check_tree
 
 

@@ -14,8 +14,9 @@ import tomllib
 from pathlib import Path
 
 import pytest
-import trinetra
 from test_imp0002_project_metadata import PYPROJECT, REPO_ROOT
+
+import trinetra
 from trinetra.boundaries import LAYERS, check_tree
 
 SRC = REPO_ROOT / "backend" / "src"

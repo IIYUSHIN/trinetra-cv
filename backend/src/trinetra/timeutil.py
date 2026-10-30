@@ -110,9 +110,11 @@ def parse_utc(text: object) -> datetime:
     match = _SECONDS_RE.fullmatch(text) or _MICROS_RE.fullmatch(text)
     if match is None:
         raise TimeError("timestamp is not in the strict UTC format", details={"name": "timestamp"})
-    parts = [int(g) for g in match.groups()]
+    groups = match.groups()
+    year, month, day, hour, minute, second = (int(g) for g in groups[:6])
+    micro = int(groups[6]) if len(groups) == 7 else 0
     try:
-        return datetime(*parts, tzinfo=UTC)
+        return datetime(year, month, day, hour, minute, second, micro, tzinfo=UTC)
     except ValueError as exc:  # month 13, day 31 of April, hour 24, second 60 ...
         raise TimeError(f"timestamp is not a real instant: {exc}", details={"name": "timestamp"}) from exc
 

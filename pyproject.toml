@@ -78,7 +78,8 @@ test = [
     "packaging>=24.1,<27",
 ]
 lint = [
-    "ruff>=0.6,<1",
+    "ruff>=0.17,<0.18",
+    "mypy>=2.4,<3",
 ]
 dev = [
     { include-group = "test" },
@@ -95,3 +96,67 @@ exclude-newer = "2026-10-31T00:00:00Z"
 # Src layout from Bible 134-155: the importable package is backend/src/trinetra.
 module-root = "backend/src"
 module-name = "trinetra"
+
+# ---------------------------------------------------------------------------
+# Quality configuration (IMP-0011). Everything is explicit on purpose: Ruff's
+# *built-in* default rule set changes between releases, so relying on it would
+# make lint results differ between machines and over time. The tool versions
+# are pinned by uv.lock; bump them (and review the rule diff) in their own commit.
+# ---------------------------------------------------------------------------
+[tool.ruff]
+required-version = ">=0.17,<0.18"
+target-version = "py312"
+line-length = 110
+src = ["backend/src", "tests"]
+fix = false
+
+[tool.ruff.lint]
+# Families chosen for a security-sensitive, offline, hostile-input codebase:
+# pyflakes/pycodestyle/isort, bugbear, pyupgrade, simplify, pytest style,
+# logging-format, bandit (S), blind-except, naive-datetime (DTZ), print (T20),
+# pylint, tryceratops, perflint, refurb, Ruff-specific, async and naming.
+select = [
+    "E", "W", "F", "I", "B", "UP", "C4", "SIM", "PT", "G", "ISC", "TRY", "RUF", "PL", "S",
+    "BLE", "DTZ", "T20", "PIE", "A", "ARG", "RET", "PERF", "FURB", "LOG", "PGH", "N", "ASYNC",
+]
+ignore = [
+    "TRY003",   # long messages inside exception constructors are the project convention
+    "PLR2004",  # magic-number comparisons: protocol constants are named where they matter
+    "PLR0911", "PLR0912", "PLR0913", "PLR0915",  # size heuristics; reviewed by humans instead
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["trinetra"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests deliberately build hostile and malformed inputs.
+"tests/**" = [
+    "S101", "S105", "S106", "S108", "S301", "S603", "S607",  # assert, fake secrets, pickle round-trip, subprocess
+    "ARG001", "ARG002", "N802", "N818",                     # fixtures/params, test-local exception names
+    "RUF001", "RUF002", "RUF003",                           # intentional look-alike / non-ASCII characters
+    "DTZ001",                                               # naive datetimes are negative test inputs
+    "PT011", "PT012", "PT018",                              # style rules that fight table-driven negatives
+    "PLC0415", "TRY301", "PERF401",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["backend/src/trinetra"]
+warn_unreachable = true
+# "redundant-expr" is deliberately NOT enabled: boundary validators reject `bool` where `int` is
+# expected (`isinstance(x, bool) or not isinstance(x, int)`), which is correct at runtime because
+# bool subclasses int, but statically redundant for mypy.
+enable_error_code = ["ignore-without-code", "truthy-bool"]
+show_error_codes = true
+pretty = false
+
+[tool.pytest.ini_options]
+minversion = "8.3"
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config", "-p", "no:cacheprovider"]
+xfail_strict = true
+filterwarnings = ["error"]
+markers = [
+    "network: needs real network access; runs only when TRINETRA_NETWORK_TESTS=1 (never in default runs)",
+]

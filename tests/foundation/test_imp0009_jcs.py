@@ -10,6 +10,7 @@ import struct
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+
 from trinetra.digest import sha256_digest
 from trinetra.errors import TrinetraError
 from trinetra.jcs import (
@@ -87,7 +88,7 @@ def test_rfc8785_section_3_2_4_end_to_end_sample():
 
 def test_rfc8785_section_3_2_3_utf16_key_sorting():
     keys = ["€", "\r", "דּ", "1", "\U0001f600", "\u0080", "ö"]
-    out = canonicalize({k: 0 for k in keys}).decode("utf-8")
+    out = canonicalize(dict.fromkeys(keys, 0)).decode("utf-8")
     ordered = list(json.loads(out))
     # UTF-16 code-unit order: CR, '1', U+0080, o-umlaut, euro, emoji (D83D..) BEFORE U+FB33.
     assert ordered == ["\r", "1", "\u0080", "ö", "€", "\U0001f600", "דּ"]
@@ -310,7 +311,8 @@ def test_property_canonical_form_is_idempotent_and_stdlib_parseable(value):
     once = canonicalize(value)
     again = canonicalize(loads_strict(once))
     assert once == again
-    # JSON numbers are doubles: compare under double semantics (stdlib would read 57205143117583700 as an exact int).
+    # JSON numbers are doubles: compare under double semantics
+    # (stdlib would read 57205143117583700 as an exact int).
     assert json.loads(once, parse_int=float) == json.loads(json.dumps(value), parse_int=float)
 
 
