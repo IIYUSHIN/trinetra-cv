@@ -1,5 +1,5 @@
 {
- "_comment": "Known-answer vectors. sha256 values were computed with hashlib (independent of trinetra); canonical strings follow RFC 8785 as written by hand. The unverified Appendix B row is deliberately absent.",
+ "_comment": "Known-answer vectors. sha256 values were computed with hashlib (independent of trinetra); canonical strings follow RFC 8785. Appendix B row becbf647612f3696 -> -0.0000033333333333333333 per owner decision 2026-10-31.",
  "jcs": [
   {
    "canonical": "{\"a\":[true,null,\"é\",1.5,0],\"b\":1}",
@@ -53,6 +53,14 @@
     "x": {},
     "y": []
    }
+  },
+  {
+   "canonical": "[-0.0000033333333333333333]",
+   "canonical_sha256": "91df72c098377e85c34bfe32ad88372ec420b27ad7f0674e70a47b902ed8baee",
+   "id": "rfc8785-appendix-b-becbf647612f3696",
+   "json": [
+    -3.3333333333333333e-06
+   ]
   }
  ],
  "sha256": [

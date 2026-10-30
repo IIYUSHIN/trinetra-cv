@@ -63,14 +63,15 @@ def test_rfc8785_appendix_b_number_vectors(bits, text):
     assert format_number(double(bits)) == text
 
 
-def test_rfc8785_row_becbf647612f3696_is_pinned_to_the_es_closest_rule_and_flagged_unverified():
-    """UNVERIFIED against the RFC text (not reachable offline). My recollection of
-    the RFC row is '-0.0000033333333333333335'; the ECMAScript 'closest candidate'
-    rule and Python's correctly rounded repr both give '...3333'. Both strings
-    denote the same double. A reviewer must check Appendix B (REV candidate)."""
+def test_rfc8785_appendix_b_row_becbf647612f3696():
+    """RFC 8785 Appendix B (ES Number serialization samples): IEEE-754 bits
+    BECBF647612F3696 MUST serialize as '-0.0000033333333333333333' (owner decision
+    2026-10-31 resolving the earlier unverified note; the ES 'closest candidate'
+    rule yields this string and it round-trips to the same double)."""
     value = double("becbf647612f3696")
     assert format_number(value) == "-0.0000033333333333333333"
-    assert float(format_number(value)) == float("-0.0000033333333333333335") == value
+    assert float(format_number(value)) == value
+    assert canonicalize([value]) == b"[-0.0000033333333333333333]"
 
 
 def test_rfc8785_section_3_2_4_end_to_end_sample():

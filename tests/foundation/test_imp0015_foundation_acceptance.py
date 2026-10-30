@@ -62,8 +62,8 @@ def test_jcs_known_answers(vector):
 def test_vector_file_is_well_formed_and_covers_each_family():
     assert {"sha256", "jcs"} <= set(VECTORS)
     assert len({v["id"] for v in VECTORS["jcs"]}) == len(VECTORS["jcs"])
-    assert len(VECTORS["jcs"]) >= 5 and len(VECTORS["sha256"]) >= 2
-    assert not any("becbf647612f3696" in json.dumps(v) for v in VECTORS["jcs"])  # unverified row
+    assert len(VECTORS["jcs"]) >= 6 and len(VECTORS["sha256"]) >= 2
+    assert any(v["id"] == "rfc8785-appendix-b-becbf647612f3696" for v in VECTORS["jcs"])
 
 
 # ------------------------------------------------------------- determinism
