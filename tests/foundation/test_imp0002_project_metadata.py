@@ -132,6 +132,12 @@ def check_pyproject(data: dict) -> list[str]:
         problems.append("group dev must include exactly test and lint")
 
     uv = data.get("tool", {}).get("uv", {})
+    for heavy in ("torch", "torchvision"):
+        if heavy in where and heavy not in (uv.get("sources") or {}):
+            problems.append(
+                f"{heavy} requires an explicit tool.uv.sources index (CPU-only wheels); "
+                "PyPI's default Linux wheel pulls CUDA packages"
+            )
     for name, source in (uv.get("sources") or {}).items():
         entries = source if isinstance(source, list) else [source]
         for entry in entries:
@@ -161,11 +167,22 @@ def test_every_requirement_parses_and_is_bounded():
         Requirement(raw)
 
 
-def test_runner_ml_stack_only_in_runner_extra():
+def test_runner_ml_extra_holds_onnxruntime_and_defers_torch():
     data = load()
     raw = data["project"]["optional-dependencies"]["runner-ml"]
     runner = {canonicalize_name(Requirement(r).name) for r in raw}
-    assert RUNNER_ONLY <= runner
+    assert "onnxruntime" in runner
+    # torch/torchvision are deferred until a CPU-only index is configured; the
+    # policy refuses them without one (see torch_without_cpu_index below).
+    assert not (runner & {"torch", "torchvision"})
+
+
+def test_torch_with_cpu_index_source_is_accepted_by_policy():
+    def add_torch(d):
+        d["project"]["optional-dependencies"]["runner-ml"] += ["torch>=2.4,<3"]
+        d["tool"]["uv"]["sources"] = {"torch": {"index": "pytorch-cpu"}}
+    mutated = _mutated(add_torch)
+    assert not any("torch" in p for p in mutated), mutated
 
 
 def test_core_dependencies_exactly_pydantic():
@@ -251,6 +268,10 @@ NEGATIVE_CASES = {
     "torch_outside_runner_extra": (
         lambda d: d["project"]["optional-dependencies"]["imaging"].append("torch>=2.4,<3"),
         "torch allowed only in extra runner-ml",
+    ),
+    "torch_without_cpu_index": (
+        lambda d: d["project"]["optional-dependencies"]["runner-ml"].append("torch>=2.4,<3"),
+        "torch requires an explicit tool.uv.sources index",
     ),
     "onnxruntime_in_dev_group": (
         lambda d: d["dependency-groups"]["test"].append("onnxruntime>=1.19,<2"),
