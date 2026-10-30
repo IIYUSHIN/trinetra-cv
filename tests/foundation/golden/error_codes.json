@@ -2,6 +2,7 @@
   "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
   "DIGEST_INVALID": "trinetra.digest.DigestError",
+  "JCS_INVALID": "trinetra.jcs.JcsError",
   "TIME_INVALID": "trinetra.timeutil.TimeError",
   "TRINETRA_ERROR": "trinetra.errors.TrinetraError"
 }
