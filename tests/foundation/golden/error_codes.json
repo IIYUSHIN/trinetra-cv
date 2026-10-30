@@ -1,5 +1,6 @@
 {
   "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
+  "TIME_INVALID": "trinetra.timeutil.TimeError",
   "TRINETRA_ERROR": "trinetra.errors.TrinetraError"
 }
