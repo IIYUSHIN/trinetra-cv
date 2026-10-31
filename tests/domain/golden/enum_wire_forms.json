@@ -76,6 +76,17 @@
     "IGNORE_EXIF",
     "APPLY_EXIF"
   ],
+  "ReferenceStanding": [
+    "ACTIVE",
+    "REVOKED",
+    "SUPERSEDED",
+    "EXPIRED"
+  ],
+  "ReferenceState": [
+    "ACTIVE",
+    "REVOKED",
+    "SUPERSEDED"
+  ],
   "SystemReadiness": [
     "READY",
     "DEGRADED",

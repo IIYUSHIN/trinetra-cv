@@ -17,6 +17,7 @@
   "polprof": "trinetra.domain.policy.PolicyProfileId",
   "quar": "trinetra.domain.intake_ids.QuarantineHandle",
   "ref": "trinetra.domain.references.ReferenceId",
+  "refevt": "trinetra.domain.references.ReferenceEventId",
   "testdef": "trinetra.domain.jobs.TestDefinitionId",
   "transfer": "trinetra.domain.intake_ids.TransferId"
 }
