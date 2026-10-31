@@ -23,6 +23,9 @@ SRC = REPO_ROOT / "backend" / "src"
 EXPECTED_DIRS = {
     "domain", "application", "infrastructure", "api", "adapters", "methods",
     "methods/data", "methods/model", "methods/shift", "execution", "tiir", "assurance",
+    # PROPOSED amendment (ERR-CL-012, IMP-0044): Alembic revision scripts ship inside the package so an
+    # offline release carries its own schema authority. The Bible's repository shape does not place them.
+    "infrastructure/migrations", "infrastructure/migrations/versions",
 }
 
 

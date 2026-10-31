@@ -83,8 +83,9 @@ def check_quality_config(doc: dict) -> list[str]:
             problems.append("tool.mypy.strict must be true")
         if mypy.get("python_version") != "3.12":
             problems.append("tool.mypy.python_version must be 3.12")
-        if mypy.get("files") != ["backend/src/trinetra"]:
-            problems.append("tool.mypy.files must be exactly the production package")
+        # ERR-CL-014 (PROPOSED): the evaluation package is type-checked under the same strict settings.
+        if mypy.get("files") != ["backend/src/trinetra", "evaluation/src/trinetra_eval"]:
+            problems.append("tool.mypy.files must be exactly the production and evaluation packages")
         if mypy.get("warn_unreachable") is not True:
             problems.append("tool.mypy.warn_unreachable must be true")
         if "ignore-without-code" not in mypy.get("enable_error_code", []):
@@ -172,7 +173,7 @@ MUTATIONS = {
     "mypy not strict": (_set(["tool", "mypy", "strict"], False), "strict must be true"),
     "mypy wrong python": (_set(["tool", "mypy", "python_version"], "3.11"), "python_version"),
     "mypy files narrowed": (_set(["tool", "mypy", "files"], ["backend/src/trinetra/errors.py"]),
-                            "production package"),
+                            "production and evaluation packages"),
     "mypy unreachable off": (_set(["tool", "mypy", "warn_unreachable"], False), "warn_unreachable"),
     "mypy blanket ignore": (_set(["tool", "mypy", "enable_error_code"], []), "ignore-without-code"),
     "mypy ignore_errors": (_set(["tool", "mypy", "ignore_errors"], True), "silence"),
