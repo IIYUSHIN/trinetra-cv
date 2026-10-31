@@ -107,7 +107,7 @@ module-name = "trinetra"
 required-version = ">=0.17,<0.18"
 target-version = "py312"
 line-length = 110
-src = ["backend/src", "tests"]
+src = ["backend/src", "evaluation/src", "tests"]
 fix = false
 
 [tool.ruff.lint]
@@ -142,7 +142,7 @@ known-first-party = ["trinetra"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["backend/src/trinetra"]
+files = ["backend/src/trinetra", "evaluation/src/trinetra_eval"]
 warn_unreachable = true
 # "redundant-expr" is deliberately NOT enabled: boundary validators reject `bool` where `int` is
 # expected (`isinstance(x, bool) or not isinstance(x, int)`), which is correct at runtime because
@@ -154,6 +154,7 @@ pretty = false
 [tool.pytest.ini_options]
 minversion = "8.3"
 testpaths = ["tests"]
+pythonpath = ["evaluation/src"]
 addopts = ["-ra", "--strict-markers", "--strict-config", "-p", "no:cacheprovider"]
 xfail_strict = true
 filterwarnings = ["error"]
