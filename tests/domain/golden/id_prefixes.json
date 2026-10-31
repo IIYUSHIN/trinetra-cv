@@ -2,6 +2,8 @@
   "asset": "trinetra.domain.assets.AssetId",
   "attempt": "trinetra.domain.attempts.ExecutionAttemptId",
   "case": "trinetra.domain.case.CaseId",
+  "evgrp": "trinetra.domain.evidence.EvidenceGroupId",
+  "evid": "trinetra.domain.evidence.EvidenceId",
   "job": "trinetra.domain.jobs.JobId",
   "ref": "trinetra.domain.references.ReferenceId",
   "testdef": "trinetra.domain.jobs.TestDefinitionId"
