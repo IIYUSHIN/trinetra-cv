@@ -1,4 +1,5 @@
 {
   "asset": "trinetra.domain.assets.AssetId",
-  "case": "trinetra.domain.case.CaseId"
+  "case": "trinetra.domain.case.CaseId",
+  "ref": "trinetra.domain.references.ReferenceId"
 }

@@ -9,5 +9,6 @@
   "LOG_INVALID": "trinetra.structured_log.LogError",
   "SECURITY_INVALID": "trinetra.security.SecurityError",
   "TIME_INVALID": "trinetra.timeutil.TimeError",
+  "TOKEN_INVALID": "trinetra.domain.tokens.TokenError",
   "TRINETRA_ERROR": "trinetra.errors.TrinetraError"
 }
