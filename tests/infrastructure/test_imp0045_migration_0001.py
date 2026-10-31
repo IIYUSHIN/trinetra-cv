@@ -30,14 +30,18 @@ GOLDEN = Path(__file__).parent / "golden" / "migration_manifest.json"
 EXPECTED_TABLES = {
     "alembic_version", "blob_locators", "asset_records", "journal_state", "audit_events",
     "audit_event_subjects", "audit_event_contexts",
+    # migration 0002 (IMP-0083)
+    "cases", "case_asset_links", "reference_records", "reference_state_events",
 }
 AUTHORITATIVE = ["asset_records", "audit_events", "audit_event_subjects", "audit_event_contexts"]
 
 
 # ------------------------------------------------------------------------ migration identity
-def test_the_chain_has_exactly_one_head_named_0001():
-    assert validate_scripts() == "0001"
-    assert [p.name for p in migration_files()] == ["0001_core_identity_assets.py"]
+def test_the_chain_is_linear_with_0002_as_its_only_head():
+    assert validate_scripts() == "0002"
+    assert [p.name for p in migration_files()] == [
+        "0001_core_identity_assets.py", "0002_cases_capabilities_references.py",
+    ]
 
 
 def test_migration_identity_is_committed_to_source():
@@ -47,9 +51,9 @@ def test_migration_identity_is_committed_to_source():
 
 
 def test_upgrade_records_the_head(store):
-    assert require_current(store) == "0001"
+    assert require_current(store) == "0002"
     with store.database.engine.connect() as connection:
-        assert current_revision(connection) == "0001"
+        assert current_revision(connection) == "0002"
         connection.rollback()
 
 

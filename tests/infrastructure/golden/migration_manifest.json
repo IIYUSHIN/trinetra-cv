@@ -1,3 +1,4 @@
 {
-  "0001_core_identity_assets.py": "5592934cc3f596f75950285085cd6790a4d5f8781b34771a373ffe08bbb598db"
+  "0001_core_identity_assets.py": "5592934cc3f596f75950285085cd6790a4d5f8781b34771a373ffe08bbb598db",
+  "0002_cases_capabilities_references.py": "1e18af840f3be2f770380c3498d3e53e4a59afe87e74a8a8c62aa46ac0826a78"
 }
