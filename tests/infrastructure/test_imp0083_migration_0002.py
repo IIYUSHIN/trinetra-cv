@@ -3,11 +3,9 @@ exercised with raw SQL so the database's own laws are what is tested."""
 
 from __future__ import annotations
 
-import json
-
 import pytest
 
-from persistence_support import INSERT_ASSET, INSERT_BLOB, RawDb, asset_row, blob_row, opaque
+from persistence_support import opaque, put_asset
 
 T0, T1, T2 = "2026-10-31T10:00:00Z", "2026-10-31T10:00:05Z", "2026-10-31T10:01:00Z"
 INSERT_CASE = (
@@ -28,19 +26,6 @@ INSERT_EVENT = (
     "superseded_by_reference_id, reason_code, reason_text) VALUES (:event_id, :reference_id, :sequence, "
     ":state, :occurred_at, :superseded_by_reference_id, :reason_code, :reason_text)"
 )
-
-
-def put_asset(raw: RawDb, n: int, kind: str) -> str:
-    data = f"asset-{n}".encode()
-    row = asset_row(n, data=data, name=f"a{n}.bin")
-    body = {**json.loads(row["body_json"]), "asset_kind": kind}
-    row = {**row, "asset_kind": kind, "body_json": json.dumps(body, sort_keys=True, separators=(",", ":"))}
-    from persistence_support import sha
-
-    row["body_digest"] = sha(row["body_json"].encode())
-    raw.run(INSERT_BLOB, blob_row(data))
-    raw.run(INSERT_ASSET, row)
-    return row["record_id"]
 
 
 def case_row(n: int = 1, **over):

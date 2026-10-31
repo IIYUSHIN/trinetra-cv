@@ -80,10 +80,20 @@ class CaseAssetLink(DomainModel):
     linked_at: UtcTimestamp
 
 
+_ROLE_RANK: Final = {role: rank for rank, role in enumerate(CaseAssetRole)}
+
+
+def link_sort_key(link: CaseAssetLink) -> tuple[int, int]:
+    return _ROLE_RANK[link.role], link.ordinal
+
+
 def link_assets(
     entries: Iterable[tuple[CaseAssetRole, AssetId]], linked_at: UtcTimestamp
 ) -> tuple[CaseAssetLink, ...]:
-    """Build the full, valid link set for a new Case from (role, asset) pairs in plan order."""
+    """Build the full, valid link set for a new Case from (role, asset) pairs in plan order.
+
+    The result is in canonical order (role in the order of `CaseAssetRole`, then ordinal), so the same
+    package always yields the same tuple, hence the same wire bytes."""
     counts = dict.fromkeys(CaseAssetRole, 0)
     links: list[CaseAssetLink] = []
     for role, asset_id in entries:
@@ -91,12 +101,15 @@ def link_assets(
             raise CaseAssetLinkError("too many assets for a role", details={"role": role.to_wire()})
         links.append(CaseAssetLink(asset_id=asset_id, role=role, ordinal=counts[role], linked_at=linked_at))
         counts[role] += 1
+    links.sort(key=link_sort_key)
     validate_link_set(links)
     return tuple(links)
 
 
 def validate_link_set(links: Sequence[CaseAssetLink]) -> None:
     """Raise `CaseAssetLinkError` unless `links` is a complete, correctly numbered set."""
+    if list(links) != sorted(links, key=link_sort_key):
+        raise CaseAssetLinkError("links must be in canonical order (role, then ordinal)")
     seen: set[AssetId] = set()
     ordinals: dict[CaseAssetRole, list[int]] = {role: [] for role in CaseAssetRole}
     for link in links:
@@ -116,5 +129,5 @@ def validate_link_set(links: Sequence[CaseAssetLink]) -> None:
 
 __all__ = [
     "MAX_LINKS_PER_ROLE", "ROLE_CARDINALITY", "CaseAssetLink", "CaseAssetLinkError", "CaseAssetRole",
-    "link_assets", "role_for_kind", "validate_link_set",
+    "link_assets", "link_sort_key", "role_for_kind", "validate_link_set",
 ]

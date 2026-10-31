@@ -157,9 +157,9 @@ def test_links_are_numbered_from_zero_per_role_in_the_given_order():
                (R.REFERENCE, asset(6))]  # fmt: skip
     got = links(entries)
     assert [(lk.role, lk.asset_id, lk.ordinal) for lk in got] == [
-        (R.DATASET, asset(1), 0), (R.MODEL, asset(2), 0), (R.REFERENCE, asset(3), 0),
-        (R.REFERENCE, asset(4), 1), (R.CONTRIBUTOR_METADATA, asset(5), 0), (R.REFERENCE, asset(6), 2),
-    ]  # fmt: skip
+        (R.DATASET, asset(1), 0), (R.MODEL, asset(2), 0), (R.CONTRIBUTOR_METADATA, asset(5), 0),
+        (R.REFERENCE, asset(3), 0), (R.REFERENCE, asset(4), 1), (R.REFERENCE, asset(6), 2),
+    ]  # canonical order: role, then ordinal  # fmt: skip
     assert all(lk.linked_at == T0 for lk in got)
 
 
@@ -206,8 +206,11 @@ def test_validate_link_set_rejects_gaps_duplicates_and_misplaced_ordinals():
     ref0 = CaseAssetLink(asset_id=asset(3), role=R.REFERENCE, ordinal=0, linked_at=T0)
     ref2 = CaseAssetLink(asset_id=asset(4), role=R.REFERENCE, ordinal=2, linked_at=T0)
     ref1 = CaseAssetLink(asset_id=asset(5), role=R.REFERENCE, ordinal=1, linked_at=T0)
-    validate_link_set([d, m, ref0, ref1])  # accepted, in any order
-    validate_link_set([ref1, m, d, ref0])
+    validate_link_set([d, m, ref0, ref1])  # accepted in canonical order only
+    with pytest.raises(CaseAssetLinkError, match="canonical order"):
+        validate_link_set([ref1, m, d, ref0])
+    with pytest.raises(CaseAssetLinkError, match="canonical order"):
+        validate_link_set([m, d])
     with pytest.raises(CaseAssetLinkError, match="ordinals"):
         validate_link_set([d, m, ref0, ref2])  # gap
     with pytest.raises(CaseAssetLinkError, match="ordinals"):
@@ -243,3 +246,17 @@ def test_validate_link_set_rejects_a_second_singular_role_even_when_numbered_cor
     with pytest.raises(CaseAssetLinkError, match="too many") as exc:
         validate_link_set([d, m, second_model])
     assert exc.value.details["role"] == "model"
+
+
+def test_the_same_package_in_any_arrival_order_gives_the_same_case_bytes():
+    a = [(R.DATASET, asset(1)), (R.MODEL, asset(2)), (R.CONTRIBUTOR_METADATA, asset(5))]
+    b = [(R.CONTRIBUTOR_METADATA, asset(5)), (R.MODEL, asset(2)), (R.DATASET, asset(1))]
+    ca = AssuranceCase.create(case_id(), links(a), T0)
+    cb = AssuranceCase.create(case_id(), links(b), T0)
+    assert ca.canonical_bytes() == cb.canonical_bytes()
+
+
+def test_a_case_rejects_links_that_are_not_in_canonical_order():
+    shuffled = tuple(reversed(links()))
+    with pytest.raises(ValidationError, match="canonical order"):
+        raw_case(asset_links=shuffled)
