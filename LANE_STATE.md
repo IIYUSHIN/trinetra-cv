@@ -122,3 +122,7 @@ in L-A-1-002 remain open. Seven packets of the original 21 remain held.
 IMP-0291: implemented Effective input TensorDigest; provisional under ERR-CL-023.
 RED recorded before implementation. Mutation 1/1 killed and restored.
 Final full validation after IMP-0291: 2869 passed, 6 skipped in 36.01s; seven quality gates PASS; both commands exit 0.
+
+IMP-0292: implemented Tensor dtype shape layout canonicalization; provisional under ERR-CL-023.
+RED recorded before implementation. Mutation 1/1 killed and restored.
+Final full validation after IMP-0292: 2879 passed, 6 skipped in 36.24s; seven quality gates PASS; both commands exit 0.
