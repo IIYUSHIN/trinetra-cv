@@ -43,6 +43,6 @@ def test_no_secrets_or_telemetry_and_bounded_runtime(text):
 
 
 def test_it_runs_the_real_quality_runner_from_a_frozen_lock(text):
-    assert "uv sync --frozen --extra persistence" in text
+    assert "uv sync --frozen --extra persistence --extra crypto" in text
     assert "scripts/quality_gate.py" in text
     assert 'python-version: "3.12"' in text
