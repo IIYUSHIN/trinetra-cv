@@ -1,10 +1,10 @@
 # Codex B / L-B-1
 Base: 2a5db1a39402d8285ce48da71cd3436bce0db91a
 Branch: codex-b/B1-eval-foundation
-Done (author-run, contingent): IMP-0396..0418
-Next: IMP-0419 through IMP-0420 in frozen order.
+Done (author-run, contingent): IMP-0396..0419
+Next: IMP-0420 through IMP-0420 in frozen order.
 Gate: all seven PASS; full regression passed before this commit.
-Mutation: 0418: 1/1 killed; 'raw = entropy(16)' -> 'raw = entropy(15)'; no equivalent mutants.
+Mutation: 0419: 1/1 killed; 'any(pattern in raw for pattern in patterns)' -> 'any(False for pattern in patterns)'; no equivalent mutants.
 Baseline: 2023 passed / 4 skipped, PYTHONUNBUFFERED=1; unrestricted execution required for existing filesystem/socket tests.
 NOT_RUN: real Blind/Final populations, real keys, R1-R23, deployment/container isolation, second host, independent acceptance.
 ERR-CL-014/015 remain PROPOSED; out-of-order work is not Bible-compliant until approved. No acceptance claim.
