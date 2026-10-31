@@ -52,8 +52,8 @@ class Rig:
         self.receive = ReceiveTransferService(self.clock, self.ids, self.registry, self.quarantine)
         admit = TransferAdmissionService(self.clock, self.registry, self.quarantine, self.admission,
                                          self.lookup)
-        self.service = CommitIntakeService(CommitAdmissionStep(self.registry, admit), self.registry,
-                                           self.cases, self.clock)
+        self.step = CommitAdmissionStep(self.registry, admit)
+        self.service = CommitIntakeService(self.step, self.registry, self.cases, self.clock)
         self.intake = None
         self._n = 0
 
@@ -69,6 +69,13 @@ class Rig:
             declared_format=DeclaredFormat(fmt) if fmt else None, logical_identifier=None,
             filename=OriginalFilename(value=f"f{self._n}.bin"), media_type=media, stream=io.BytesIO(data),
         ))  # fmt: skip
+
+    def service_over(self, cases):
+        """A commit service identical to `service` but storing Cases through `cases`."""
+        return CommitIntakeService(self.step, self.registry, cases, self.clock)
+
+    def event_types(self):
+        return [e.event_type.text for e in self.events()[0]]
 
     def events(self):
         with self.store.unit_of_work() as uow:
