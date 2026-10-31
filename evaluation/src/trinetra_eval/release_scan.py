@@ -28,6 +28,16 @@ def _violation() -> Never:
     raise LeakageCanaryViolation()
 
 
+def _decoded_base64(raw: bytes) -> bytes | None:
+    if len(raw) < 8 or len(raw) % 4 or not raw.isascii():
+        return None
+    try:
+        decoded = base64.b64decode(raw, validate=True)
+    except ValueError:
+        return None
+    return decoded if base64.b64encode(decoded) == raw else None
+
+
 def assert_no_leakage(
     paths: tuple[Path, ...], canaries: tuple[LeakageCanary, ...], forbidden_terms: tuple[bytes, ...] = ()
 ) -> None:
@@ -63,7 +73,10 @@ def assert_no_leakage(
         if depth > MAX_DEPTH or min(remaining) < 0:
             _violation()
         check(raw)
-        if raw.startswith((b"PK\x03\x04", b"PK\x05\x06")):
+        decoded = _decoded_base64(raw)
+        if decoded is not None:
+            scan(decoded, depth + 1)
+        if raw.startswith((b"PK\x03\x04", b"PK\x05\x06")) or zipfile.is_zipfile(io.BytesIO(raw)):
             with zipfile.ZipFile(io.BytesIO(raw)) as archive:
                 for entry in archive.infolist():
                     remaining[1] -= 1
@@ -92,18 +105,22 @@ def assert_no_leakage(
                             scan(tar_stream.read(remaining[0] + 1), depth + 1)
         elif raw.lstrip().startswith((b"{", b"[", b'"')):
             try:
-                document = json.loads(raw)
+                document = json.loads(raw, object_pairs_hook=list)
             except (ValueError, UnicodeDecodeError):
                 return  # not an encoded JSON artifact; its raw bytes were scanned
             pending = [document]
             while pending:
                 value = pending.pop()
                 if isinstance(value, str):
-                    check(value.encode())
+                    encoded = value.encode()
+                    check(encoded)
+                    decoded = _decoded_base64(encoded)
+                    if decoded is not None:
+                        scan(decoded, depth + 1)
                 elif isinstance(value, dict):
                     pending.extend(value.keys())
                     pending.extend(value.values())
-                elif isinstance(value, list):
+                elif isinstance(value, list | tuple):
                     pending.extend(value)
 
     failed = False

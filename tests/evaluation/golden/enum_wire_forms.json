@@ -1,0 +1,71 @@
+{
+  "BehaviouralTruthState": [
+    "ACTIVE_EFFECT",
+    "NO_MATERIAL_EFFECT",
+    "CONTROL_EXPLAINED_EFFECT",
+    "AMBIGUOUS",
+    "NOT_APPLICABLE"
+  ],
+  "EvaluationFamily": [
+    "DATA_LABEL_INTEGRITY",
+    "DATA_DUPLICATION",
+    "DATA_OOD",
+    "DATA_PATTERN",
+    "MODEL_BEHAVIOUR",
+    "MODEL_IDENTITY",
+    "TIIR_INTEGRITY",
+    "DRIFT",
+    "ASSURANCE_REASONING",
+    "MIXED"
+  ],
+  "EvaluationKeyPurpose": [
+    "EVALUATION_COMMITMENT_SIGNING",
+    "BLIND_TRUTH_ENCRYPTION",
+    "FINAL_TRUTH_ENCRYPTION"
+  ],
+  "EvaluationPopulation": [
+    "DEVELOPMENT",
+    "CALIBRATION",
+    "BLIND",
+    "FINAL"
+  ],
+  "LeakageRelation": [
+    "DERIVED_FROM_SAMPLE",
+    "GENERATED_DUPLICATE_OF",
+    "SAME_GENERATED_DUPLICATE_FAMILY",
+    "USES_GENERATED_PATCH_LINEAGE",
+    "TRAINED_FROM_GENERATED_DATASET",
+    "DERIVED_FROM_GENERATED_MODEL",
+    "MUTATION_OF_RECEIPT",
+    "SAME_RECEIPT_STREAM_SCENARIO",
+    "MATCHED_BENIGN_TWIN_OF"
+  ],
+  "MutationTruthState": [
+    "NONE",
+    "APPLIED",
+    "PARTIALLY_APPLIED",
+    "ATTEMPTED_FAILED",
+    "NOT_APPLICABLE"
+  ],
+  "OracleAssessability": [
+    "ASSESSABLE",
+    "PARTIALLY_ASSESSABLE",
+    "UNASSESSABLE"
+  ],
+  "OracleTruthValue": [
+    "TRUE",
+    "FALSE",
+    "INDETERMINATE",
+    "NOT_APPLICABLE"
+  ],
+  "ScenarioCauseClass": [
+    "SEEDED_ADVERSE_MUTATION",
+    "SEEDED_BENIGN_CONDITION",
+    "OPERATIONAL_SHIFT",
+    "DEPLOYMENT_ERROR",
+    "RECORD_TAMPER",
+    "CAPABILITY_LIMITATION",
+    "INFRASTRUCTURE_FAILURE",
+    "MIXED_CAUSE"
+  ]
+}

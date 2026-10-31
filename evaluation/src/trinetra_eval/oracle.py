@@ -4,8 +4,8 @@ from typing import Literal
 
 from trinetra.domain.digests import DigestSha256
 from trinetra.domain.text import Label
-from trinetra_eval.hidden import PrivateRecord, PrivateSchema
 from trinetra_eval.identity import ScenarioId
+from trinetra_eval.private import PrivateRecord, PrivateSchema
 
 
 class _OracleSchema(PrivateSchema):

@@ -1,7 +1,7 @@
 """IMP-0409: undirected connected components before any population assignment."""
 
-from trinetra_eval.hidden import private_document
 from trinetra_eval.lineage import EvaluationLineageGraph
+from trinetra_eval.private import private_document
 
 
 def isolation_components(graph: EvaluationLineageGraph) -> tuple[frozenset[str], ...]:

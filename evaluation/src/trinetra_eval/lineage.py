@@ -8,8 +8,8 @@ from trinetra.domain.enums import WireEnum
 from trinetra.domain.ids import OpaqueId
 from trinetra.domain.text import Label
 from trinetra.domain.timing import UtcTimestamp
-from trinetra_eval.hidden import PrivateRecord, PrivateSchema
 from trinetra_eval.identity import ScenarioId
+from trinetra_eval.private import PrivateRecord, PrivateSchema
 
 
 class EvaluationIsolationGroupId(OpaqueId):

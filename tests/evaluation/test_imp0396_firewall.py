@@ -56,3 +56,7 @@ def test_aliased_dynamic_imports_are_not_a_firewall_escape(source):
 
 def test_from_package_import_does_not_hide_assurance_dependency():
     assert audit_source("from trinetra import assurance", production=False)
+
+
+def test_regular_expression_compilation_is_not_dynamic_python_execution():
+    assert audit_source("import re; pattern = re.compile('x')", production=True) == ()

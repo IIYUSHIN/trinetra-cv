@@ -1,4 +1,5 @@
 """IMP-0398: opaque scenario identity, separate from content and truth."""
+
 from trinetra.domain.ids import OpaqueId
 
 

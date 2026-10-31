@@ -32,6 +32,13 @@ def audit_source(source: str, *, production: bool) -> tuple[int, ...]:
             bad.add(node.lineno)
         elif isinstance(node, ast.Call):
             f = node.func
+            if (
+                isinstance(f, ast.Attribute)
+                and isinstance(f.value, ast.Name)
+                and f.value.id == "re"
+                and f.attr == "compile"
+            ):
+                continue
             name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else ""
             if name in {"__import__", "import_module", "eval", "exec", "compile"}:
                 bad.add(node.lineno)

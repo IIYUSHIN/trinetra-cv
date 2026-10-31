@@ -19,9 +19,9 @@ from trinetra.domain.digests import DigestSha256
 from trinetra_eval.blind import BlindPopulationManifest
 from trinetra_eval.calibration import CalibrationPopulationManifest
 from trinetra_eval.final import FinalPopulationManifest
-from trinetra_eval.hidden import private_document
 from trinetra_eval.key_purposes import EvaluationKeyPurpose, require_purpose
 from trinetra_eval.populations import DevelopmentPopulationManifest
+from trinetra_eval.private import private_document
 
 PopulationManifest = (
     DevelopmentPopulationManifest

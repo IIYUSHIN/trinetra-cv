@@ -2,9 +2,9 @@
 
 from typing import Literal
 
-from trinetra_eval.hidden import PrivateRecord
 from trinetra_eval.overlap import EvaluationPopulation
 from trinetra_eval.populations import PopulationSchema
+from trinetra_eval.private import PrivateRecord
 
 
 class _FinalSchema(PopulationSchema):

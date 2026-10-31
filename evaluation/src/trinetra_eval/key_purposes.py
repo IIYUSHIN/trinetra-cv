@@ -1,4 +1,5 @@
 """IMP-0397: evaluation-only key authority; never a production trust registry."""
+
 from trinetra.domain.enums import WireEnum
 
 

@@ -5,7 +5,7 @@ from pydantic import model_validator
 from trinetra.domain.digests import DigestSha256
 from trinetra.domain.disposition import Disposition
 from trinetra.domain.text import Label
-from trinetra_eval.hidden import PrivateRecord, PrivateSchema
+from trinetra_eval.private import PrivateRecord, PrivateSchema
 
 
 class _PolicySchema(PrivateSchema):

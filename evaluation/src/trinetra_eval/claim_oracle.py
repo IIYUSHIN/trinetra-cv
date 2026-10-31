@@ -5,7 +5,7 @@ from pydantic import model_validator
 from trinetra.domain.claim_state import ClaimState
 from trinetra.domain.enums import WireEnum
 from trinetra.domain.text import Label
-from trinetra_eval.hidden import PrivateRecord, PrivateSchema
+from trinetra_eval.private import PrivateRecord, PrivateSchema
 
 
 class OracleTruthValue(WireEnum):

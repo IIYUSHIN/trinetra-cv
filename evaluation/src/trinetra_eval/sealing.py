@@ -13,8 +13,8 @@ from pydantic import model_validator
 from trinetra.domain.base import DomainModel
 from trinetra.domain.digests import DigestSha256
 from trinetra.jcs import canonicalize, loads_strict
-from trinetra_eval.hidden import PrivateRecord, PrivateSchema, private_document
 from trinetra_eval.overlap import EvaluationPopulation
+from trinetra_eval.private import PrivateRecord, PrivateSchema, private_document
 
 
 def _decode(text: str) -> bytes:
@@ -48,6 +48,7 @@ class _BundleSchema(PrivateSchema):
 
 
 class PrivateTruthBundle(PrivateRecord):
+    """Structural private payload, not proof of population/truth/oracle correspondence."""
     __slots__ = ()
     SCHEMA = _BundleSchema
 

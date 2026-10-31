@@ -21,16 +21,34 @@ def fields():
         "evaluation_family": "MODEL_BEHAVIOUR",
         "scenario_family": "synthetic",
         "cause_class": "SEEDED_ADVERSE_MUTATION",
-        "mutation_truth": {},
-        "behavioural_truth": {},
+        "mutation_truth": {
+            "mutation_state": "NONE",
+            "operation": "synthetic-noop",
+            "before_digest": "sha256:" + "0" * 64,
+            "after_digest": "sha256:" + "0" * 64,
+            "affected_entity_refs": (),
+        },
+        "behavioural_truth": {
+            "behavioural_state": "NO_MATERIAL_EFFECT",
+            "criterion_ref": "sha256:" + "1" * 64,
+            "observation_refs": (),
+            "limitations": ("synthetic-only",),
+        },
         "generation_truth": {"canary": CANARY},
         "affected_entity_truth": (),
         "benign_entity_truth": (),
         "expected_method_targets": (),
         "expected_claims": (),
         "expected_coverage": (),
-        "expected_policy": {},
-        "expected_scope": {},
+        "expected_policy": {
+            "decision_scope": (),
+            "policy_profile_digest": "sha256:" + "2" * 64,
+            "allowed_dispositions": ("REVIEW",),
+            "forbidden_dispositions": (),
+            "triggered_rule_ids": (),
+            "reason_codes": (),
+        },
+        "expected_scope": {"required_scope_refs": (), "permitted_scope_refs": (), "forbidden_scope_refs": ()},
         "expected_lineage": {},
         "expected_capsule": {},
         "evaluation_isolation_group_id": "eig_" + "b" * 32,
@@ -111,14 +129,33 @@ def test_visible_round_trip_and_typeadapter_validation_are_safe():
 
     record = make()
     assert VisibleScenarioManifest.model_validate_json(record.model_dump_json()) == record
-    assert TypeAdapter(VisibleScenarioManifest).validate_json(record.model_dump_json()) == record
+    # Third-party raw parsers cannot participate in the sanitized public boundary.
+
+    with pytest.raises(VisibleManifestValidationError):
+        TypeAdapter(VisibleScenarioManifest)
     operations = (
         lambda: VisibleScenarioManifest.model_validate_strings({"scenario_id": CANARY}),
-        lambda: TypeAdapter(VisibleScenarioManifest).validate_python({"scenario_id": CANARY}),
-        lambda: TypeAdapter(VisibleScenarioManifest).validate_python(CANARY),
+        lambda: VisibleScenarioManifest.model_validate({"scenario_id": CANARY}),
+        lambda: VisibleScenarioManifest.model_validate(CANARY),
     )
     for operation in operations:
         with pytest.raises(VisibleManifestValidationError) as error:
             operation()
         assert CANARY not in str(error.value)
         assert error.value.__context__ is None
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"evaluation_family": "ATTACK"},
+        {"cause_class": "ACTIVE_EFFECT"},
+        {"mutation_truth": {"mutation_state": "ACTIVE_EFFECT"}},
+        {"behavioural_truth": {"behavioural_state": "APPLIED"}},
+        {"expected_policy": {"expected_disposition": "SUPPORTED"}},
+        {"evaluation_isolation_group_id": "not-an-eig"},
+    ],
+)
+def test_hidden_record_composes_the_distinct_truth_contracts(change):
+    with pytest.raises(ValueError):
+        truth(**change)

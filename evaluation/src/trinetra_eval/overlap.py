@@ -4,8 +4,8 @@ from collections.abc import Mapping
 
 from trinetra.domain.enums import WireEnum
 from trinetra_eval.closure import isolation_components
-from trinetra_eval.hidden import private_document
 from trinetra_eval.lineage import EvaluationLineageGraph
+from trinetra_eval.private import private_document
 
 
 class EvaluationPopulation(WireEnum):

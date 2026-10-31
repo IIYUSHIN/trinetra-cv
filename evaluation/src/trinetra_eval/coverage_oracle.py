@@ -2,7 +2,7 @@
 
 from trinetra.domain.coverage import CoverageStatus
 from trinetra.domain.text import Label
-from trinetra_eval.hidden import PrivateRecord, PrivateSchema
+from trinetra_eval.private import PrivateRecord, PrivateSchema
 
 
 class _CoverageSchema(PrivateSchema):
