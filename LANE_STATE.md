@@ -73,3 +73,6 @@ RED recorded before implementation. Mutation 1/1 killed and restored.
 
 IMP-0302: implemented Issued-at/freshness fields; independent of receipt/stream IDs.
 RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0305: implemented TIIR signer request schema; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
