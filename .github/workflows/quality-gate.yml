@@ -29,7 +29,7 @@ jobs:
           python-version: "3.12"
           enable-cache: false
       - name: Install locked environment (build-time network only)
-        run: uv sync --frozen
+        run: uv sync --frozen --extra persistence
         timeout-minutes: 8
       - name: Quality gate
         run: uv run python scripts/quality_gate.py --json | tee quality-gate-report.json
