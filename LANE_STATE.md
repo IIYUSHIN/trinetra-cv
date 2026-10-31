@@ -76,3 +76,6 @@ RED recorded before implementation. Mutation 1/1 killed and restored.
 
 IMP-0305: implemented TIIR signer request schema; independent of receipt/stream IDs.
 RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0294: implemented Preprocessing profile digest binding; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
