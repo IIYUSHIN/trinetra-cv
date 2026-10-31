@@ -52,3 +52,6 @@ RED recorded before implementation. Mutation 1/1 killed and restored.
 
 IMP-0287: implemented Ed25519 key-purpose profile; independent of receipt/stream IDs.
 RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0288: implemented Deterministic CBOR encoder profile; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
