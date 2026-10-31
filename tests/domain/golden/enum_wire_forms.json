@@ -41,6 +41,12 @@
     "REVIEW",
     "QUARANTINE"
   ],
+  "ExecutionAssuranceClass": [
+    "DATAFLOW_GRAPH",
+    "SCRIPTED_GRAPH",
+    "TRUSTED_ARCHITECTURE_WEIGHTS_ONLY",
+    "SANDBOXED_CODE_BEARING_PACKAGE"
+  ],
   "ExecutionState": [
     "PENDING",
     "RUNNING",
