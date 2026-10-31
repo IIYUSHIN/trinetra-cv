@@ -9,6 +9,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
+from trinetra.infrastructure.asset_immutability import ddl_window
 from trinetra.infrastructure.sqlite import DatabaseConfig
 from trinetra.infrastructure.unit_of_work import CoreStore, UnitOfWorkStateError
 from trinetra.infrastructure.writer_lock import CoreWriterLock, WriterLockHeldError, WriterLockStateError
@@ -24,9 +25,12 @@ def store(tmp_path: Path):
     root.mkdir(mode=0o700)
     with CoreStore.open(DatabaseConfig(root)) as opened:
         with opened.unit_of_work() as uow:
-            uow.connection.execute(text("CREATE TABLE t (x INTEGER PRIMARY KEY, y INTEGER)"))
-            uow.connection.execute(text("CREATE TABLE p (id INTEGER PRIMARY KEY)"))
-            uow.connection.execute(text(DEFERRED_CHILD))
+            with ddl_window(uow.connection):
+                uow.connection.execute(text("CREATE TABLE t (x INTEGER PRIMARY KEY, y INTEGER)"))
+            with ddl_window(uow.connection):
+                uow.connection.execute(text("CREATE TABLE p (id INTEGER PRIMARY KEY)"))
+            with ddl_window(uow.connection):
+                uow.connection.execute(text(DEFERRED_CHILD))
             uow.commit()
         yield opened
 

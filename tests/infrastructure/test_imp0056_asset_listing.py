@@ -10,6 +10,7 @@ from trinetra.domain.asset_record import ActorId, AssetRecord
 from trinetra.domain.assets import AssetId, AssetKind
 from trinetra.domain.digests import DigestSha256
 from trinetra.domain.timing import UtcTimestamp
+from trinetra.infrastructure.asset_immutability import ddl_window
 from trinetra.infrastructure.asset_repository import (
     AssetQueryError,
     AssetRepository,
@@ -151,7 +152,8 @@ def test_cursor_round_trip():
 
 def test_a_tampered_row_surfaces_in_listing_too(store, repo, seeded):
     with store.unit_of_work() as uow:
-        uow.connection.exec_driver_sql("DROP TRIGGER asset_records_no_update")
+        with ddl_window(uow.connection):
+            uow.connection.exec_driver_sql("DROP TRIGGER asset_records_no_update")
         uow.connection.exec_driver_sql("UPDATE asset_records SET body_digest = ? WHERE record_id = ?",
                                        ("sha256:" + "0" * 64, str(seeded[0].record_id)))
         uow.commit()

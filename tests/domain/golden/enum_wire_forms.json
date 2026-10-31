@@ -14,6 +14,10 @@
     "LIMITED",
     "INSUFFICIENT"
   ],
+  "AuditOutcome": [
+    "SUCCESS",
+    "FAILURE"
+  ],
   "CapabilityState": [
     "AVAILABLE",
     "LIMITED",
@@ -49,6 +53,11 @@
     "CURRENT",
     "STALE",
     "INVALIDATED"
+  ],
+  "OrientationPolicy": [
+    "REQUIRE_IDENTITY",
+    "IGNORE_EXIF",
+    "APPLY_EXIF"
   ],
   "SystemReadiness": [
     "READY",

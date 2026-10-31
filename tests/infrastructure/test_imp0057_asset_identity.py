@@ -11,6 +11,7 @@ from trinetra.domain.asset_record import ActorId, AssetRecord
 from trinetra.domain.assets import AssetId, AssetKind
 from trinetra.domain.timing import UtcTimestamp
 from trinetra.infrastructure.asset_identity import ContentIdentityError, assert_content_identity
+from trinetra.infrastructure.asset_immutability import ddl_window
 from trinetra.infrastructure.asset_repository import AssetRepository
 from trinetra.infrastructure.cas_layout import CasLayout
 from trinetra.infrastructure.cas_store import CasStore
@@ -122,7 +123,8 @@ def test_two_records_on_one_blob_both_fail_when_the_blob_is_corrupt(store, cas):
 def test_a_locator_for_another_backend_violates_the_invariant(store, cas):
     record = admit(store, cas)
     with store.unit_of_work() as uow:
-        uow.connection.exec_driver_sql("PRAGMA ignore_check_constraints = ON")
+        with ddl_window(uow.connection):
+            uow.connection.exec_driver_sql("PRAGMA ignore_check_constraints = ON")
         uow.connection.exec_driver_sql("UPDATE blob_locators SET backend_type = 'S3'")
         uow.commit()
     with pytest.raises(ContentIdentityError, match="derives"):

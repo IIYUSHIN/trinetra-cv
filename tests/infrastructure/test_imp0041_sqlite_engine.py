@@ -15,6 +15,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
 import trinetra
+from trinetra.infrastructure.asset_immutability import ddl_window
 from trinetra.infrastructure.sqlite import (
     BUSY_TIMEOUT_MS,
     DatabaseConfig,
@@ -141,7 +142,8 @@ def test_every_new_connection_gets_the_settings_not_just_the_first(db):
 
 def test_wal_is_really_on_disk_not_just_reported(db):
     with db.engine.begin() as conn:
-        conn.execute(text("CREATE TABLE t (x INTEGER)"))
+        with ddl_window(conn):
+            conn.execute(text("CREATE TABLE t (x INTEGER)"))
         conn.execute(text("INSERT INTO t VALUES (1)"))
     other = sqlite3.connect(db.path)
     try:
@@ -184,8 +186,12 @@ def test_open_fails_at_open_time_when_pragmas_cannot_verify(root, monkeypatch):
 # ------------------------------------------------------------------ behaviour that depends on them
 def test_foreign_keys_are_actually_enforced(db):
     with db.engine.begin() as conn:
-        conn.execute(text("CREATE TABLE parent (id INTEGER PRIMARY KEY)"))
-        conn.execute(text("CREATE TABLE child (id INTEGER PRIMARY KEY, p INTEGER NOT NULL REFERENCES parent(id))"))  # noqa: E501
+        with ddl_window(conn):
+            conn.execute(text("CREATE TABLE parent (id INTEGER PRIMARY KEY)"))
+        with ddl_window(conn):
+            conn.execute(
+                text("CREATE TABLE child (id INTEGER PRIMARY KEY, p INTEGER NOT NULL REFERENCES parent(id))")
+            )
     with pytest.raises(IntegrityError), db.engine.begin() as conn:
         conn.execute(text("INSERT INTO child (id, p) VALUES (1, 99)"))
     with db.engine.begin() as conn:
@@ -194,7 +200,8 @@ def test_foreign_keys_are_actually_enforced(db):
 
 def test_a_failed_transaction_rolls_back_completely_including_ddl(db):
     with pytest.raises(RuntimeError), db.engine.begin() as conn:
-        conn.execute(text("CREATE TABLE ghost (x INTEGER)"))
+        with ddl_window(conn):
+            conn.execute(text("CREATE TABLE ghost (x INTEGER)"))
         conn.execute(text("INSERT INTO ghost VALUES (1)"))
         raise RuntimeError("abort")
     with db.engine.begin() as conn:
@@ -203,7 +210,7 @@ def test_a_failed_transaction_rolls_back_completely_including_ddl(db):
 
 
 def test_transactions_start_immediate_so_a_second_writer_waits_instead_of_deadlocking(db):
-    with db.engine.begin() as conn:
+    with db.engine.begin() as conn, ddl_window(conn):
         conn.execute(text("CREATE TABLE c (x INTEGER)"))
     first = db.engine.connect()
     first.begin()
@@ -241,7 +248,8 @@ def test_threads_each_get_verified_connections(db):
 def test_committed_data_survives_dispose_and_reopen(root):
     first = TrinetraDatabase.open(DatabaseConfig(root))
     with first.engine.begin() as conn:
-        conn.execute(text("CREATE TABLE keep (x INTEGER)"))
+        with ddl_window(conn):
+            conn.execute(text("CREATE TABLE keep (x INTEGER)"))
         conn.execute(text("INSERT INTO keep VALUES (42)"))
     first.dispose()
     second = TrinetraDatabase.open(DatabaseConfig(root))
@@ -258,10 +266,12 @@ CRASH = textwrap.dedent(
     import os, sys
     from pathlib import Path
     from sqlalchemy import text
+    from trinetra.infrastructure.asset_immutability import ddl_window
     from trinetra.infrastructure.sqlite import DatabaseConfig, TrinetraDatabase
     db = TrinetraDatabase.open(DatabaseConfig(Path(sys.argv[1])))
     with db.engine.begin() as c:
-        c.execute(text("CREATE TABLE ev (x INTEGER)"))
+        with ddl_window(c):
+            c.execute(text("CREATE TABLE ev (x INTEGER)"))
         c.execute(text("INSERT INTO ev VALUES (1)"))
     c = db.engine.connect(); c.begin()
     c.execute(text("INSERT INTO ev VALUES (2)"))   # never committed

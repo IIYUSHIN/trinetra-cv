@@ -2,6 +2,7 @@
   "anldec": "trinetra.domain.decisions.AnalystDecisionId",
   "asset": "trinetra.domain.assets.AssetId",
   "attempt": "trinetra.domain.attempts.ExecutionAttemptId",
+  "audit": "trinetra.domain.audit.AuditEventId",
   "case": "trinetra.domain.case.CaseId",
   "claimdef": "trinetra.domain.claims.ClaimDefinitionId",
   "claimsn": "trinetra.domain.claims.ClaimSnapshotId",

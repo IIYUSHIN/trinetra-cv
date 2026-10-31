@@ -11,6 +11,7 @@ from trinetra.domain.asset_record import ActorId, AssetRecord
 from trinetra.domain.assets import AssetId, AssetKind
 from trinetra.domain.digests import DigestSha256
 from trinetra.domain.timing import UtcTimestamp
+from trinetra.infrastructure.asset_immutability import ddl_window
 from trinetra.infrastructure.asset_repository import (
     AssetExistsError,
     AssetIntegrityError,
@@ -113,8 +114,10 @@ def test_the_database_itself_refuses_a_size_that_disagrees_with_the_blob(store, 
 
 def edit(store, set_clause, params):
     with store.unit_of_work() as uow:
-        uow.connection.exec_driver_sql("DROP TRIGGER asset_records_no_update")
-        uow.connection.exec_driver_sql("DROP TRIGGER asset_records_size_matches_blob")
+        with ddl_window(uow.connection):
+            uow.connection.exec_driver_sql("DROP TRIGGER asset_records_no_update")
+        with ddl_window(uow.connection):
+            uow.connection.exec_driver_sql("DROP TRIGGER asset_records_size_matches_blob")
         uow.connection.exec_driver_sql(f"UPDATE asset_records SET {set_clause}", params)  # noqa: S608
         uow.commit()
 
@@ -166,8 +169,10 @@ def test_a_column_edited_behind_the_body_is_detected(store, repo):
     stored(store, repo, record)
     with store.unit_of_work() as uow:
         for trigger in ("asset_records_no_update", "asset_records_size_matches_blob"):
-            uow.connection.exec_driver_sql(f"DROP TRIGGER {trigger}")
-        uow.connection.exec_driver_sql("PRAGMA ignore_check_constraints = ON")
+            with ddl_window(uow.connection):
+                uow.connection.exec_driver_sql(f"DROP TRIGGER {trigger}")
+        with ddl_window(uow.connection):
+            uow.connection.exec_driver_sql("PRAGMA ignore_check_constraints = ON")
         uow.connection.exec_driver_sql("UPDATE asset_records SET supplied_name = 'swapped.pt'")
         uow.commit()
     with pytest.raises(AssetIntegrityError, match="column"):

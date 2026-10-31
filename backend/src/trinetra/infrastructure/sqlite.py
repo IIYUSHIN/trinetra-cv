@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING, Any, Final
 from sqlalchemy import create_engine, event
 
 from trinetra.errors import TrinetraError
+from trinetra.infrastructure.asset_immutability import install_guard
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import Connection, Engine
@@ -176,9 +177,10 @@ class TrinetraDatabase:
         path = validate_database_path(config)
         engine = create_engine(f"sqlite+pysqlite:///{path}", future=True)
 
-        def _on_connect(dbapi_connection: Any, _record: Any) -> None:
+        def _on_connect(dbapi_connection: Any, record: Any) -> None:
             dbapi_connection.isolation_level = None  # we emit BEGIN ourselves (SQLAlchemy recipe)
             apply_and_verify_pragmas(dbapi_connection)
+            install_guard(dbapi_connection, record.info)
 
         def _on_begin(connection: Connection) -> None:
             connection.exec_driver_sql("BEGIN IMMEDIATE")

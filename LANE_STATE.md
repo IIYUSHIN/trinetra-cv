@@ -92,7 +92,7 @@ non-v4 16-byte values remain accepted. JSON/text and signed CBOR are distinct.
 Hinge handoff inspected: archive SHA-256
 596d1d2aa5f7cc1a4a22423824e3594521c86a6ca526ee00098f61c489208ce2.
 It contains documents, not patches. Actual fetched principal-builder Git commit:
-a0efce858971426da8a7e14242a3fdd652b60d16 (not merged yet). It supplies I3 and
+a0efce858971426da8a7e14242a3fdd652b60d16 (merged below). It supplies I3 and
 DetectionSet/geometry/dataset contracts, not tensor/model/runtime/raw-output types.
 ERR-CL-020 remains PROPOSED. Semantic digest discrepancy is ERR-CL-021 PROPOSED;
 see LANE_REQUESTS/L-A-1-003.md. No new float CBOR profile is implemented locally.
@@ -100,3 +100,21 @@ see LANE_REQUESTS/L-A-1-003.md. No new float CBOR profile is implemented locally
 IMP-0285 full validation: 2259 passed, 4 skipped (exit 0); all seven gates PASS
 (exit 0). Affected existing components 0285/0288/0299/0300/0305: 142 passed,
 exit 0. Full payload/persistence/replay retests remain NOT_RUN, not inferred.
+
+Principal-builder integration: feature-branch merge of exact hinge
+ a0efce858971426da8a7e14242a3fdd652b60d16, preserving published TIIR history.
+I3 and DetectionSet/geometry/dataset files originate from Claude's commits; Codex
+has not authored replacements in shared directories. Golden error manifest merged
+automatically, retaining both owners' entries. No dependency/CI changes involved.
+The hinge supplies DetectionSet but not the outstanding tensor/model/runtime/raw
+producer contracts. ERR-CL-020 remains PROPOSED, no independent acceptance.
+
+Pinned hinge integration validated: 2831 passed, 6 skipped in the full suite,
+exit 0; all seven quality gates PASS, exit 0; hinge plus TIIR component run:
+513 passed, exit 0. Additional skips are ownership/device-node negatives needing
+root, not passes. Shared domain/adapters/infrastructure/CI/dependency files are
+byte-identical to the principal-builder parent; the error catalog is the sorted
+union of both parents. This integration is not independent module acceptance.
+IMP-0298 remains held on ERR-CL-021's semantic digest substrate/content decision,
+not on absence of the now-available DetectionSet types. Other provider requests
+in L-A-1-002 remain open. Seven packets of the original 21 remain held.
