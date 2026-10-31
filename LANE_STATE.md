@@ -118,3 +118,7 @@ union of both parents. This integration is not independent module acceptance.
 IMP-0298 remains held on ERR-CL-021's semantic digest substrate/content decision,
 not on absence of the now-available DetectionSet types. Other provider requests
 in L-A-1-002 remain open. Seven packets of the original 21 remain held.
+
+IMP-0291: implemented Effective input TensorDigest; provisional under ERR-CL-023.
+RED recorded before implementation. Mutation 1/1 killed and restored.
+Final full validation after IMP-0291: 2869 passed, 6 skipped in 36.01s; seven quality gates PASS; both commands exit 0.
