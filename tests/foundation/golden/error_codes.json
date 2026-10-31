@@ -3,6 +3,7 @@
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
   "DIGEST_INVALID": "trinetra.digest.DigestError",
   "DOMAIN_CONVENTION": "trinetra.domain.base.DomainConventionError",
+  "IDENTIFIER_INVALID": "trinetra.domain.ids.IdentifierError",
   "JCS_INVALID": "trinetra.jcs.JcsError",
   "LOG_INVALID": "trinetra.structured_log.LogError",
   "SECURITY_INVALID": "trinetra.security.SecurityError",
