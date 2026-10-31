@@ -10,12 +10,17 @@ there is no update or delete. No local path is ever stored or returned.
 
 from __future__ import annotations
 
+import base64
+import binascii
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Final
 
 from pydantic import ValidationError
 
 from trinetra.domain.asset_record import AssetRecord
-from trinetra.domain.assets import AssetId
+from trinetra.domain.assets import AssetId, AssetKind
+from trinetra.domain.digests import DigestSha256
+from trinetra.domain.timing import UtcTimestamp
 from trinetra.errors import TrinetraError
 from trinetra.infrastructure.cas_layout import locator_for
 from trinetra.timeutil import Clock, SystemClock, format_utc, truncate_to_seconds
@@ -39,6 +44,45 @@ class AssetExistsError(TrinetraError):
 class AssetIntegrityError(TrinetraError):
     code = "ASSET_RECORD_INTEGRITY"
     default_message = "a stored AssetRecord does not agree with its own digest or columns"
+
+
+class AssetQueryError(TrinetraError):
+    code = "ASSET_QUERY_INVALID"
+    default_message = "the asset list query is invalid"
+
+
+MAX_PAGE: Final = 200
+MAX_CURSOR: Final = 256
+DEFAULT_PAGE: Final = 50
+
+
+@dataclass(frozen=True)
+class AssetPage:
+    items: tuple[AssetRecord, ...]
+    next_cursor: str | None
+
+
+def encode_cursor(created_at: str, record_id: str) -> str:
+    return base64.urlsafe_b64encode(f"{created_at}|{record_id}".encode()).decode().rstrip("=")
+
+
+def decode_cursor(cursor: str) -> tuple[str, str]:
+    """Strictly parse an opaque position token; anything else is a query error, never a guess."""
+    if not cursor.isascii() or len(cursor) > MAX_CURSOR:
+        msg = "the page cursor is not valid"
+        raise AssetQueryError(msg)
+    try:
+        text = base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)).decode("utf-8")
+        created_at, record_id = text.split("|")
+        UtcTimestamp.parse(created_at)
+        AssetId.parse(record_id)
+    except (ValueError, binascii.Error, TrinetraError) as exc:
+        msg = "the page cursor is not valid"
+        raise AssetQueryError(msg) from exc
+    if encode_cursor(created_at, record_id) != cursor:
+        msg = "the page cursor is not in canonical form"
+        raise AssetQueryError(msg)
+    return created_at, record_id
 
 
 class AssetRepository:
@@ -71,6 +115,42 @@ class AssetRepository:
             (str(asset_id),),
         ).fetchone()
         return None if row is None else self._verified(tuple(row))
+
+    def list_page(
+        self,
+        uow: UnitOfWork,
+        *,
+        kind: AssetKind | None = None,
+        blob_digest: DigestSha256 | None = None,
+        limit: int = DEFAULT_PAGE,
+        after: str | None = None,
+    ) -> AssetPage:
+        """Keyset pagination ordered by (created_at, record_id); every filter is a bound parameter."""
+        if isinstance(limit, bool) or not 1 <= limit <= MAX_PAGE:
+            msg = f"limit must be within [1, {MAX_PAGE}]"
+            raise AssetQueryError(msg)
+        clauses: list[str] = []
+        params: list[Any] = []
+        if kind is not None:
+            clauses.append("asset_kind = ?")
+            params.append(kind.value)
+        if blob_digest is not None:
+            clauses.append("blob_digest = ?")
+            params.append(blob_digest.to_wire())
+        if after is not None:
+            created_at, record_id = decode_cursor(after)
+            clauses.append("(created_at > ? OR (created_at = ? AND record_id > ?))")
+            params.extend([created_at, created_at, record_id])
+        where = f"WHERE {' AND '.join(clauses)} " if clauses else ""
+        rows = uow.connection.exec_driver_sql(
+            f"SELECT {_COLUMNS} FROM asset_records {where}ORDER BY created_at, record_id LIMIT ?",  # noqa: S608
+            (*params, limit + 1),
+        ).fetchall()
+        page = [self._verified(tuple(row)) for row in rows[:limit]]
+        more = len(rows) > limit
+        last = page[-1] if page else None
+        cursor = encode_cursor(last.created_at.to_wire(), str(last.record_id)) if more and last else None
+        return AssetPage(tuple(page), cursor)
 
     def exists(self, uow: UnitOfWork, asset_id: AssetId) -> bool:
         return self._exists(uow, asset_id)
