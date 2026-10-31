@@ -16,6 +16,8 @@ from typing import Any, Self
 from pydantic import GetCoreSchemaHandler
 from pydantic_core import core_schema
 
+_UNORDERED = "wire enum members are unordered; ranking must be an explicit named rule"
+
 
 class WireEnum(StrEnum):
     """StrEnum whose pydantic schema is strict about the exact wire value."""
@@ -40,6 +42,21 @@ class WireEnum(StrEnum):
 
     def __hash__(self) -> int:
         return hash((type(self).__qualname__, self.value))
+
+    # Raising (not NotImplemented): NotImplemented lets the reflected str comparison answer for a bare string.
+    # StrEnum inherits str ordering, so `PASS < FAIL` would silently compare spellings. These
+    # dimensions are unordered: any ranking is an explicit, named domain rule elsewhere.
+    def __lt__(self, other: object) -> bool:
+        raise TypeError(_UNORDERED)
+
+    def __le__(self, other: object) -> bool:
+        raise TypeError(_UNORDERED)
+
+    def __gt__(self, other: object) -> bool:
+        raise TypeError(_UNORDERED)
+
+    def __ge__(self, other: object) -> bool:
+        raise TypeError(_UNORDERED)
 
     @classmethod
     def __get_pydantic_core_schema__(

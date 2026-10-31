@@ -45,3 +45,18 @@ def test_from_wire_is_exact():
     for bad in ("red", "X", 3, None, Colour.RED):
         with pytest.raises(ValueError):
             Colour.from_wire(bad)
+
+
+def test_members_are_unordered_so_spelling_never_ranks_a_dimension():
+    import operator
+
+    from trinetra.domain.assets import AssetKind
+
+    a, b = AssetKind.DATASET, AssetKind.MODEL
+    for op in (operator.lt, operator.le, operator.gt, operator.ge):
+        with pytest.raises(TypeError):
+            op(a, b)
+        with pytest.raises(TypeError):
+            op(a, "model")
+    with pytest.raises(TypeError):
+        sorted([b, a])
