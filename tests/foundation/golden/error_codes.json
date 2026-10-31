@@ -2,6 +2,8 @@
   "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
   "COUNTER_INVALID": "trinetra.domain.counters.CounterError",
+  "DB_CONFIG_INVALID": "trinetra.infrastructure.sqlite.DatabaseConfigError",
+  "DB_PRAGMA_UNVERIFIED": "trinetra.infrastructure.sqlite.DatabasePragmaError",
   "DIGEST_INVALID": "trinetra.digest.DigestError",
   "DIGEST_VALUE_INVALID": "trinetra.domain.digests.DigestValueError",
   "DOMAIN_CONVENTION": "trinetra.domain.base.DomainConventionError",
