@@ -33,6 +33,10 @@ FORBIDDEN_FIELD_NAMES: Final = frozenset({"status", "state"})
 _SCORE_NAME: Final = re.compile(
     r"(?:^|_)(?:risk|trust|confidence|assurance|integrity|safety|quality)?_?score(?:$|_)|^confidence$|^risk$"
 )
+# The score-name guard exists to stop a magic trust/risk/confidence number. A detector's per-box
+# `score` is a raw model output named by the frozen Detection contract (ERR-CL-020), so exactly
+# that one field of exactly that one class is exempt. Qualified names; nothing else may join.
+SCORE_FIELD_EXEMPTIONS: Final = frozenset({("trinetra.domain.detection.Detection", "score")})
 _MUTABLE_ORIGINS: Final = (list, dict, set, bytearray)
 _REQUIRED_CONFIG: Final = {"frozen": True, "extra": "forbid", "strict": True, "allow_inf_nan": False}
 
@@ -73,7 +77,8 @@ class DomainModel(BaseModel):
                     details={"class": cls.__name__, "key": key},
                 )
         for name, info in cls.model_fields.items():
-            if name in FORBIDDEN_FIELD_NAMES or _SCORE_NAME.search(name):
+            exempt = (f"{cls.__module__}.{cls.__qualname__}", name) in SCORE_FIELD_EXEMPTIONS
+            if name in FORBIDDEN_FIELD_NAMES or (_SCORE_NAME.search(name) and not exempt):
                 raise DomainConventionError(
                     f"{cls.__name__}.{name}: generic status/state or magic score fields are forbidden",
                     details={"class": cls.__name__, "field": name},
@@ -115,4 +120,4 @@ class DomainModel(BaseModel):
         return canonical_digest(self.to_wire())
 
 
-__all__ = ["FORBIDDEN_FIELD_NAMES", "DomainConventionError", "DomainModel"]
+__all__ = ["FORBIDDEN_FIELD_NAMES", "SCORE_FIELD_EXEMPTIONS", "DomainConventionError", "DomainModel"]
