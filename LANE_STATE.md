@@ -73,3 +73,14 @@ Next five held packets: IMP-0285, IMP-0291, IMP-0292, IMP-0293, IMP-0296.
 IMP-0295: implemented Inference config digest binding; independent of receipt/stream IDs.
 RED recorded before implementation. Mutation 1/1 killed and restored.
 Final full validation after IMP-0295: 2207 passed, 4 skipped in 17.38s; seven quality gates PASS; both commands exit 0.
+
+Security follow-up for IMP-0288: final review found that branching cycles could
+expand the pending-work stack faster than the visited-node budget. A measured
+branching-cycle regression failed (1 failed, 52 passed, exit 1). Include pending
+nodes in the lower-bound byte budget, keeping stack growth bounded. Add an
+untrusted CBOR shared-reference cycle negative. Preserve the published packet
+commit; deliver the repair as a separate atomic IMP-0288 follow-up.
+
+IMP-0288: implemented Bound CBOR pending validation work; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
+Final full validation after IMP-0288: 2209 passed, 4 skipped in 17.35s; seven quality gates PASS; both commands exit 0.

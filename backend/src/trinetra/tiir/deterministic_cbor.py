@@ -46,7 +46,7 @@ def _validate(value: object, max_bytes: int) -> None:
             pending.extend(item.values())
         else:
             raise TiirEncodingError("unsupported TIIR CBOR value")
-        if minimum_size > max_bytes:
+        if minimum_size + len(pending) > max_bytes:
             raise TiirEncodingError("CBOR resource limit exceeded")
 
 

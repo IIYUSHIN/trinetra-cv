@@ -82,3 +82,26 @@ def test_arbitrary_bytes_never_escape_as_library_errors(wire):
 
 def test_fixed_unsorted_map_has_the_rfc_deterministic_order():
     assert encode_cbor({3: 4, 1: 2}) == bytes.fromhex("a201020304")
+
+
+def test_branching_cycles_do_not_expand_pending_work_past_the_byte_budget():
+    iterations = 0
+
+    class MeasuredList(list):
+        def __iter__(self):
+            nonlocal iterations
+            iterations += 1
+            assert iterations <= 3, "branching cycle expanded work beyond the byte budget"
+            return super().__iter__()
+
+    branching_cycle = MeasuredList()
+    branching_cycle.extend([branching_cycle] * 32)
+    with pytest.raises(TiirEncodingError):
+        encode_cbor(branching_cycle, max_bytes=64)
+
+
+def test_shared_reference_cycle_from_untrusted_cbor_is_rejected():
+    # tag 28 shares an array containing 32 references (tag 29) to itself.
+    wire = bytes.fromhex("d81c9820") + bytes.fromhex("d81d00") * 32
+    with pytest.raises(TiirEncodingError):
+        decode_cbor(wire, max_bytes=256)
