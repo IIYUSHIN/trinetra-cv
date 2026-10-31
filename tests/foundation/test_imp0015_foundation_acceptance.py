@@ -92,7 +92,11 @@ calls = []
 def trip(*a, **k):
     calls.append(a)
     raise RuntimeError("network touched")
-socket.socket = trip
+_Real = socket.socket
+class Tripwire(_Real):  # a subclass, not a function: ssl/asyncio subclass socket.socket at import time
+    def __init__(self, *a, **k):
+        trip(*a, **k)
+socket.socket = Tripwire
 socket.create_connection = trip
 socket.getaddrinfo = trip
 ROOTS = %(roots)r
@@ -236,3 +240,13 @@ def test_tooling_output_and_vectors_never_claim_acceptance():
     assert report["complete"] is False and "not independent review" in report["note"]
     for text in (gate.stdout, (TESTS / "golden" / "foundation_vectors.json").read_text("utf-8")):
         assert not re.search(r"\bACCEPTED\b", text)
+
+
+def test_the_network_tripwire_really_trips_on_use():
+    prelude = OFFLINE_IMPORT_SCRIPT.split("ROOTS =", maxsplit=1)[0]  # the real tripwire setup, not a copy
+    script = prelude + (
+        "try:\n    socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
+        "except RuntimeError:\n    sys.exit(0 if len(calls) == 1 else 4)\n"
+        "sys.exit(3)\n"
+    )
+    assert interpreter(script, pythonpath=SRC).returncode == 0
