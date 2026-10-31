@@ -1,6 +1,6 @@
 """IMP-0399: closed visible projection; no truth, split, generator or oracle fields."""
 
-from typing import Literal
+from typing import Any, Literal, Self
 
 from pydantic import model_validator
 
@@ -21,6 +21,32 @@ class VisibleScenarioManifest(DomainModel):
     declared_access_profile: Label
     resource_hint: Label
     visible_manifest_digest: DigestSha256
+
+    def __init__(self, **values: Any) -> None:
+        valid = False
+        try:
+            super().__init__(**values)
+            valid = True
+        except ValueError:
+            valid = False
+        if not valid:
+            raise ValueError("invalid visible scenario manifest")
+
+    @classmethod
+    def model_validate_json(cls, json_data: str | bytes | bytearray, **kwargs: Any) -> Self:
+        try:
+            return super().model_validate_json(json_data, **kwargs)
+        except ValueError:
+            pass
+        raise ValueError("invalid visible scenario manifest")
+
+    @classmethod
+    def model_validate(cls, obj: Any, **kwargs: Any) -> Self:
+        try:
+            return super().model_validate(obj, **kwargs)
+        except ValueError:
+            pass
+        raise ValueError("invalid visible scenario manifest")
 
     @model_validator(mode="after")
     def check_digest(self) -> "VisibleScenarioManifest":
