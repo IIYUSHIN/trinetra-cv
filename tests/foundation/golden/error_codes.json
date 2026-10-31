@@ -1,5 +1,6 @@
 {
   "ASSET_ALREADY_EXISTS": "trinetra.infrastructure.asset_repository.AssetExistsError",
+  "ASSET_IDENTITY_VIOLATION": "trinetra.infrastructure.asset_identity.ContentIdentityError",
   "ASSET_PROFILE_REJECTED": "trinetra.domain.asset_admission.AdmissionProfileError",
   "ASSET_QUERY_INVALID": "trinetra.infrastructure.asset_repository.AssetQueryError",
   "ASSET_RECORD_INTEGRITY": "trinetra.infrastructure.asset_repository.AssetIntegrityError",
