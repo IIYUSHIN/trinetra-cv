@@ -11,6 +11,7 @@
   "AUDIT_QUERY_INVALID": "trinetra.infrastructure.audit_repository.AuditQueryError",
   "AUDIT_RECORD_INTEGRITY": "trinetra.infrastructure.audit_repository.AuditIntegrityError",
   "CASE_ALREADY_EXISTS": "trinetra.infrastructure.case_repository.CaseExistsError",
+  "CASE_ALREADY_STORED": "trinetra.application.errors.CaseAlreadyStoredError",
   "CASE_ASSET_LINKS_INVALID": "trinetra.domain.case_assets.CaseAssetLinkError",
   "CASE_INVARIANT_VIOLATED": "trinetra.domain.assurance_case.CaseInvariantError",
   "CASE_LINK_INTEGRITY": "trinetra.infrastructure.case_asset_link_repository.CaseLinkIntegrityError",

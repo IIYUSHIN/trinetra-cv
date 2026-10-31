@@ -187,3 +187,29 @@ class FakeAssets:
         )  # fmt: skip
         self.records[record_id] = record
         return record
+
+
+class MemoryCaseStore:
+    """CaseStorePort double: keeps Cases in memory and can be told to fail at chosen moments."""
+
+    def __init__(self):
+        self.cases = {}
+        self.created = []  # (case, intake_id) in call order
+        self.fail_next = None
+        self.after_create = None
+
+    def get(self, case_id):
+        return self.cases.get(case_id)
+
+    def create(self, case, *, intake_id):
+        from trinetra.application.errors import CaseAlreadyStoredError
+
+        if self.fail_next is not None:
+            error, self.fail_next = self.fail_next, None
+            raise error
+        if case.case_id in self.cases:
+            raise CaseAlreadyStoredError
+        self.cases[case.case_id] = case
+        self.created.append((case, intake_id))
+        if self.after_create is not None:
+            self.after_create()

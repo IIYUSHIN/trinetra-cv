@@ -30,6 +30,11 @@ class IntakeNotReadyError(IntakeStateConflictError):
     default_message = "the intake does not yet hold what a commit needs"
 
 
+class CaseAlreadyStoredError(ApplicationConflictError):
+    code = "CASE_ALREADY_STORED"
+    default_message = "a case with this id is already stored"
+
+
 class CommandValidationError(ApplicationError):
     code = "COMMAND_VALIDATION_FAILED"
     default_message = "the command is not valid"
@@ -53,6 +58,7 @@ class TransferRejectedError(ApplicationError):
 __all__ = [
     "ApplicationConflictError",
     "ApplicationError",
+    "CaseAlreadyStoredError",
     "CommandValidationError",
     "IntakeNotFoundError",
     "IntakeNotReadyError",
