@@ -6,26 +6,26 @@ vocabulary that mirrors the package parts an intake can carry; each maps to exac
 package roles and cannot be linked at commit.
 
 Cardinality is the frozen commit rule (EIB-04): exactly one dataset and one model, at most one
-contributor metadata and one assessment profile, any number of references and inference records.
-`link_assets` is the only constructor of a link set: it numbers each role's links 1..n in the order
-given (the deterministic commit-plan order), rejects a repeated asset (an asset has one role in a Case)
-and enforces the cardinality, so an invalid set cannot be built.
+contributor metadata and one assessment profile, any number of references and inference records. The
+dataset and the model sit at ordinal 0. `link_assets` is the only constructor of a link set: it numbers
+each role's links 0..n-1 in the order given (the deterministic commit-plan order), rejects a repeated
+asset and enforces the cardinality, so an invalid set cannot be built. `validate_link_set` re-checks a
+set read back from storage by the same rules.
 
-PROPOSED (ERR-CL-022): role names and the 1-based per-role `position`; one role per asset per Case; the
-per-role cap `MAX_LINKS_PER_ROLE` as an abuse bound matching the intake transfer bound.
+PROPOSED (ERR-CL-022): an asset holds one role per Case (its kind fixes the role anyway); the per-role
+cap `MAX_LINKS_PER_ROLE` is an abuse bound that matches the intake transfer bound.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from types import MappingProxyType
 from typing import Final
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from trinetra.domain.assets import AssetId, AssetKind
 from trinetra.domain.base import DomainModel
-from trinetra.domain.case import CaseId
 from trinetra.domain.enums import WireEnum
 from trinetra.domain.timing import UtcTimestamp
 from trinetra.errors import TrinetraError
@@ -74,45 +74,47 @@ def role_for_kind(kind: AssetKind) -> CaseAssetRole:
 
 
 class CaseAssetLink(DomainModel):
-    case_id: CaseId
     asset_id: AssetId
     role: CaseAssetRole
-    position: int = Field(strict=True, ge=1, le=MAX_LINKS_PER_ROLE)  # 1-based, within the role
+    ordinal: int = Field(strict=True, ge=0, lt=MAX_LINKS_PER_ROLE)  # 0-based, within the role
     linked_at: UtcTimestamp
-
-    @model_validator(mode="after")
-    def _within_cardinality(self) -> CaseAssetLink:
-        if self.position > ROLE_CARDINALITY[self.role][1]:
-            msg = "position exceeds the role's maximum"
-            raise ValueError(msg)
-        return self
 
 
 def link_assets(
-    case_id: CaseId, entries: Iterable[tuple[CaseAssetRole, AssetId]], linked_at: UtcTimestamp
+    entries: Iterable[tuple[CaseAssetRole, AssetId]], linked_at: UtcTimestamp
 ) -> tuple[CaseAssetLink, ...]:
     """Build the full, valid link set for a new Case from (role, asset) pairs in plan order."""
-    items = list(entries)
-    seen: set[AssetId] = set()
     counts = dict.fromkeys(CaseAssetRole, 0)
     links: list[CaseAssetLink] = []
-    for role, asset_id in items:
-        if asset_id in seen:
-            raise CaseAssetLinkError("an asset can hold only one role in a case")
-        seen.add(asset_id)
-        counts[role] += 1
-        if counts[role] > ROLE_CARDINALITY[role][1]:
+    for role, asset_id in entries:
+        if counts[role] >= ROLE_CARDINALITY[role][1]:
             raise CaseAssetLinkError("too many assets for a role", details={"role": role.to_wire()})
-        links.append(CaseAssetLink(
-            case_id=case_id, asset_id=asset_id, role=role, position=counts[role], linked_at=linked_at,
-        ))
-    missing = [r.to_wire() for r, (lo, _) in ROLE_CARDINALITY.items() if counts[r] < lo]
-    if missing:
-        raise CaseAssetLinkError("required roles are missing", details={"roles": missing})
+        links.append(CaseAssetLink(asset_id=asset_id, role=role, ordinal=counts[role], linked_at=linked_at))
+        counts[role] += 1
+    validate_link_set(links)
     return tuple(links)
+
+
+def validate_link_set(links: Sequence[CaseAssetLink]) -> None:
+    """Raise `CaseAssetLinkError` unless `links` is a complete, correctly numbered set."""
+    seen: set[AssetId] = set()
+    ordinals: dict[CaseAssetRole, list[int]] = {role: [] for role in CaseAssetRole}
+    for link in links:
+        if link.asset_id in seen:
+            raise CaseAssetLinkError("an asset can hold only one role in a case")
+        seen.add(link.asset_id)
+        ordinals[link.role].append(link.ordinal)
+    for role, (minimum, maximum) in ROLE_CARDINALITY.items():
+        found = sorted(ordinals[role])
+        if len(found) > maximum:
+            raise CaseAssetLinkError("too many assets for a role", details={"role": role.to_wire()})
+        if len(found) < minimum:
+            raise CaseAssetLinkError("a required role is missing", details={"role": role.to_wire()})
+        if found != list(range(len(found))):
+            raise CaseAssetLinkError("ordinals must run 0..n-1", details={"role": role.to_wire()})
 
 
 __all__ = [
     "MAX_LINKS_PER_ROLE", "ROLE_CARDINALITY", "CaseAssetLink", "CaseAssetLinkError", "CaseAssetRole",
-    "link_assets", "role_for_kind",
+    "link_assets", "role_for_kind", "validate_link_set",
 ]

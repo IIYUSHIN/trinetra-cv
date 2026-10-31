@@ -1,7 +1,8 @@
 """Persisted Case lifecycle position (IMP-0081).
 
-Wire form is the exact uppercase string from the frozen contract. Each enum is its own dimension:
-members never compare equal across enums and are never interchangeable with bare strings.
+Member names are the canonical v1 names; the wire form is lowercase (like `AssetKind`). There is no
+`READY` member (readiness is derived preflight output, never persisted) and no `SAFE`/`HIGH_RISK`-style
+member (lifecycle is not an assurance verdict). Only creation into PREFLIGHT exists in EIB-04.
 """
 
 from __future__ import annotations
@@ -10,13 +11,13 @@ from trinetra.domain.enums import WireEnum
 
 
 class CaseLifecycleState(WireEnum):
-    PREFLIGHT = "PREFLIGHT"
-    ASSESSING = "ASSESSING"
-    RESULTS_AVAILABLE = "RESULTS_AVAILABLE"
-    INVESTIGATING = "INVESTIGATING"
-    DECISION_READY = "DECISION_READY"
-    DECIDED = "DECIDED"
-    ATTESTED = "ATTESTED"
+    PREFLIGHT = "preflight"
+    ASSESSING = "assessing"
+    RESULTS_AVAILABLE = "results_available"
+    INVESTIGATING = "investigating"
+    DECISION_READY = "decision_ready"
+    DECIDED = "decided"
+    ATTESTED = "attested"
 
 
 __all__ = ["CaseLifecycleState"]

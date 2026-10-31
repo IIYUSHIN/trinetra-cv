@@ -1,70 +1,49 @@
-"""IMP-0081 tests: wire forms and exact parsing for CaseLifecycleState."""
+"""IMP-0081 tests: CaseLifecycleState wire forms, closedness and the absent states."""
 
 from __future__ import annotations
 
 import pytest
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-import trinetra.domain.case_lifecycle as m
+from trinetra.domain.case_lifecycle import CaseLifecycleState as L
 from trinetra.domain.enums import WireEnum
 
-GOLDEN = {
-    "CaseLifecycleState": [
-        "PREFLIGHT", "ASSESSING", "RESULTS_AVAILABLE", "INVESTIGATING", "DECISION_READY", "DECIDED",
-        "ATTESTED",
-    ],
-}
+NAMES = ["PREFLIGHT", "ASSESSING", "RESULTS_AVAILABLE", "INVESTIGATING", "DECISION_READY", "DECIDED",
+         "ATTESTED"]  # fmt: skip
 
 
-
-@pytest.mark.parametrize("name", sorted(GOLDEN))
-def test_members_and_wire_values_are_exactly_the_contract(name):
-    cls = getattr(m, name)
-    assert issubclass(cls, WireEnum)
-    assert [x.name for x in cls] == GOLDEN[name]  # order is part of the contract
-    assert [x.value for x in cls] == GOLDEN[name]
-    assert [x.to_wire() for x in cls] == GOLDEN[name]
+def test_members_are_the_canonical_v1_names_in_order_with_lowercase_wire_forms():
+    assert issubclass(L, WireEnum)
+    assert [m.name for m in L] == NAMES
+    assert [m.to_wire() for m in L] == [n.lower() for n in NAMES]
 
 
-@pytest.mark.parametrize("name", sorted(GOLDEN))
+@pytest.mark.parametrize("name", NAMES)
 def test_parsing_is_exact_and_closed(name):
-    cls = getattr(m, name)
-    for member in GOLDEN[name]:
-        assert cls.from_wire(member) is cls(member)
-        for bad in (member.lower(), member.title(), " " + member, member + " ", member + "\n", member[:-1]):
-            with pytest.raises(ValueError):
-                cls.from_wire(bad)
-    for bad in ("", "NOT_A_MEMBER", "status", None, 0, 1, b"X", ["X"]):
+    assert L.from_wire(name.lower()) is L[name]
+    for bad in (name, name.title(), " " + name.lower(), name.lower() + " ", name.lower()[:-1]):
         with pytest.raises(ValueError):
-            cls.from_wire(bad)
+            L.from_wire(bad)
 
 
-@pytest.mark.parametrize("name", sorted(GOLDEN))
-def test_members_are_typed_not_bare_strings_and_hashable(name):
-    cls = getattr(m, name)
-    first = next(iter(cls))
-    assert first != first.value
-    assert cls(first.value) == first and len({*cls}) == len(GOLDEN[name])
-    assert {first: 1}[first] == 1
+@pytest.mark.parametrize("bad", ["", "ready", "READY", "safe", "high_risk", "status", None, 0, 1, b"x"])
+def test_ready_and_verdict_like_states_do_not_exist(bad):
+    with pytest.raises(ValueError):
+        L.from_wire(bad)
 
 
-@pytest.mark.parametrize("name", sorted(GOLDEN))
-def test_pydantic_roundtrip_accepts_member_or_exact_wire_only(name):
-    cls = getattr(m, name)
+def test_members_are_not_interchangeable_with_strings():
+    assert L.PREFLIGHT != "preflight"
+    assert L.PREFLIGHT != "PREFLIGHT"
 
-    class Holder(BaseModel):
-        model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
-        value: cls  # type: ignore[valid-type]
 
-    for member in cls:
-        assert Holder(value=member).value is member
-        assert Holder(value=member.value).value is member
-    for bad in ("", "nope", GOLDEN[name][0].lower(), None, 3):
+def test_strict_models_accept_only_members_or_exact_wire_text():
+    class M(BaseModel):
+        model_config = ConfigDict(strict=True)
+        state: L
+
+    assert M(state=L.DECIDED).state is L.DECIDED
+    assert M.model_validate({"state": "decided"}).state is L.DECIDED
+    for bad in ("DECIDED", "Decided", 3):
         with pytest.raises(ValidationError):
-            Holder(value=bad)
-
-
-def test_no_member_is_a_generic_status_or_a_score():
-    for name in GOLDEN:
-        for member in getattr(m, name):
-            assert member.name.upper() == member.name and "SCORE" not in member.name
+            M.model_validate({"state": bad})

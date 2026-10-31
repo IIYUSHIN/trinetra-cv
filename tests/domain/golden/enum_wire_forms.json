@@ -32,13 +32,13 @@
     "assessment_profile"
   ],
   "CaseLifecycleState": [
-    "PREFLIGHT",
-    "ASSESSING",
-    "RESULTS_AVAILABLE",
-    "INVESTIGATING",
-    "DECISION_READY",
-    "DECIDED",
-    "ATTESTED"
+    "preflight",
+    "assessing",
+    "results_available",
+    "investigating",
+    "decision_ready",
+    "decided",
+    "attested"
   ],
   "ClaimState": [
     "SUPPORTED",
