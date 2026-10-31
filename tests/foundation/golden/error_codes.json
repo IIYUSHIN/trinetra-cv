@@ -1,6 +1,8 @@
 {
   "CAS_ADMISSION_REJECTED": "trinetra.infrastructure.cas_admission.AdmissionError",
+  "CAS_COMMIT_FAILED": "trinetra.infrastructure.cas_commit.CommitError",
   "CAS_LAYOUT_INVALID": "trinetra.infrastructure.cas_layout.CasLayoutError",
+  "CAS_OBJECT_EXISTS": "trinetra.infrastructure.cas_commit.ObjectExistsError",
   "CAS_QUARANTINE_INVALID": "trinetra.infrastructure.cas_quarantine.QuarantineError",
   "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
