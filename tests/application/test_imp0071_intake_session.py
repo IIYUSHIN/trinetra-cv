@@ -174,13 +174,18 @@ def test_a_committed_session_cannot_be_constructed_unready():
 
 
 def test_the_transfer_count_is_bounded():
-    s = session()
-    for _ in range(MAX_TRANSFERS_PER_INTAKE - 1):
-        s = s.with_transfer(transfer(PackageSlot.REFERENCE, None), T1)
+    failed = transfer(PackageSlot.REFERENCE, None, state=TransferState.FAILED)
+    filler = tuple(
+        transfer(PackageSlot.REFERENCE, None, state=TransferState.FAILED)
+        for _ in range(MAX_TRANSFERS_PER_INTAKE - 1)
+    )
+    s = session(filler)
+    assert len(s.transfers) == MAX_TRANSFERS_PER_INTAKE - 1
     s = s.with_transfer(transfer(PackageSlot.REFERENCE, None), T1)
     assert len(s.transfers) == MAX_TRANSFERS_PER_INTAKE
     with pytest.raises(IntakeStateConflictError, match="limit"):
         s.with_transfer(transfer(PackageSlot.REFERENCE, None), T1)
+    assert failed.transfer_state is TransferState.FAILED
 
 
 def test_queries_find_transfers_and_count_per_slot():

@@ -30,7 +30,9 @@ from trinetra.domain.enums import WireEnum
 from trinetra.domain.timing import UtcTimestamp
 from trinetra.errors import TrinetraError
 
-MAX_LINKS_PER_ROLE: Final = 1_000
+MAX_REFERENCE_LINKS: Final = 64
+MAX_INFERENCE_RECORD_LINKS: Final = 10_000
+MAX_LINKS_PER_ROLE: Final = MAX_INFERENCE_RECORD_LINKS  # ordinal bound for any role
 
 
 class CaseAssetRole(WireEnum):
@@ -52,8 +54,8 @@ ROLE_CARDINALITY: Final = MappingProxyType({
     CaseAssetRole.DATASET: (1, 1),
     CaseAssetRole.MODEL: (1, 1),
     CaseAssetRole.CONTRIBUTOR_METADATA: (0, 1),
-    CaseAssetRole.REFERENCE: (0, MAX_LINKS_PER_ROLE),
-    CaseAssetRole.INFERENCE_RECORD: (0, MAX_LINKS_PER_ROLE),
+    CaseAssetRole.REFERENCE: (0, MAX_REFERENCE_LINKS),
+    CaseAssetRole.INFERENCE_RECORD: (0, MAX_INFERENCE_RECORD_LINKS),
     CaseAssetRole.ASSESSMENT_PROFILE: (0, 1),
 })
 _ROLE_BY_KIND: Final = MappingProxyType({
@@ -128,6 +130,15 @@ def validate_link_set(links: Sequence[CaseAssetLink]) -> None:
 
 
 __all__ = [
-    "MAX_LINKS_PER_ROLE", "ROLE_CARDINALITY", "CaseAssetLink", "CaseAssetLinkError", "CaseAssetRole",
-    "link_assets", "link_sort_key", "role_for_kind", "validate_link_set",
+    "MAX_INFERENCE_RECORD_LINKS",
+    "MAX_LINKS_PER_ROLE",
+    "MAX_REFERENCE_LINKS",
+    "ROLE_CARDINALITY",
+    "CaseAssetLink",
+    "CaseAssetLinkError",
+    "CaseAssetRole",
+    "link_assets",
+    "link_sort_key",
+    "role_for_kind",
+    "validate_link_set",
 ]

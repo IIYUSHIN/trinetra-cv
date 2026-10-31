@@ -12,7 +12,9 @@ from trinetra.domain.assets import AssetId, AssetKind
 from trinetra.domain.assurance_case import INITIAL_LIFECYCLE, AssuranceCase, CaseInvariantError
 from trinetra.domain.case import CaseId, CaseStateRevision
 from trinetra.domain.case_assets import (
+    MAX_INFERENCE_RECORD_LINKS,
     MAX_LINKS_PER_ROLE,
+    MAX_REFERENCE_LINKS,
     ROLE_CARDINALITY,
     CaseAssetLink,
     CaseAssetLinkError,
@@ -193,9 +195,9 @@ def test_the_missing_role_is_named_in_the_error():
 
 def test_the_reference_cap_is_enforced_exactly():
     many = [(R.REFERENCE, AssetId.from_entropy(lambda s, i=i: i.to_bytes(4, "big") * (s // 4)))
-            for i in range(1, MAX_LINKS_PER_ROLE + 1)]  # fmt: skip
+            for i in range(1, MAX_REFERENCE_LINKS + 1)]  # fmt: skip
     ok = links([*MINIMAL, *many])
-    assert max(lk.ordinal for lk in ok if lk.role is R.REFERENCE) == MAX_LINKS_PER_ROLE - 1
+    assert max(lk.ordinal for lk in ok if lk.role is R.REFERENCE) == MAX_REFERENCE_LINKS - 1
     extra = (R.REFERENCE, AssetId.from_entropy(lambda s: b"\xff" * s))
     with pytest.raises(CaseAssetLinkError):
         links([*MINIMAL, *many, extra])
@@ -260,3 +262,13 @@ def test_a_case_rejects_links_that_are_not_in_canonical_order():
     shuffled = tuple(reversed(links()))
     with pytest.raises(ValidationError, match="canonical order"):
         raw_case(asset_links=shuffled)
+
+
+def test_the_source_ceilings_are_sixty_four_references_and_ten_thousand_inference_records():
+    assert ROLE_CARDINALITY[R.REFERENCE] == (0, 64) and MAX_REFERENCE_LINKS == 64
+    assert ROLE_CARDINALITY[R.INFERENCE_RECORD] == (0, 10_000) == (0, MAX_INFERENCE_RECORD_LINKS)
+    many = [(R.INFERENCE_RECORD, AssetId.from_entropy(lambda s, i=i: i.to_bytes(4, "big") * (s // 4)))
+            for i in range(1, MAX_INFERENCE_RECORD_LINKS + 1)]  # fmt: skip
+    assert len(links([*MINIMAL, *many])) == MAX_INFERENCE_RECORD_LINKS + 2
+    with pytest.raises(CaseAssetLinkError):
+        links([*MINIMAL, *many, (R.INFERENCE_RECORD, asset(250))])

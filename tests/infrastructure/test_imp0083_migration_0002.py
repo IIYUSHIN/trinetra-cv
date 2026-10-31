@@ -175,7 +175,7 @@ def test_references_and_inference_records_may_have_many_ordinals(raw):
     assert raw.attempt(INSERT_LINK, record) == ""
 
 
-@pytest.mark.parametrize("ordinal", [-1, 1000, 2**31])
+@pytest.mark.parametrize("ordinal", [-1, 10_000, 2**31])
 def test_ordinals_are_bounded(raw, ordinal):
     raw.run(INSERT_CASE, case_row(1))
     link = link_row(1, put_asset(raw, 1, "reference"), "reference", ordinal)

@@ -28,8 +28,8 @@ def test_cardinalities_are_the_frozen_ones():
         "dataset": (1, 1),
         "model": (1, 1),
         "contributor_metadata": (0, 1),
-        "reference": (0, MAX_TRANSFERS_PER_INTAKE),
-        "inference_records": (0, MAX_TRANSFERS_PER_INTAKE),
+        "reference": (0, 64),
+        "inference_records": (0, 10_000),
         "assessment_profile": (0, 1),
     }
 
@@ -101,7 +101,7 @@ def test_the_contract_table_cannot_be_modified():
         {"minimum": 2, "maximum": 1},
         {"minimum": -1},
         {"maximum": 0},
-        {"maximum": MAX_TRANSFERS_PER_INTAKE + 1},
+        {"maximum": 10_001},
         {"allowed_formats": ()},
         {"allowed_formats": (DeclaredFormat("onnx"), DeclaredFormat("coco"))},  # unsorted
         {"allowed_formats": (DeclaredFormat("coco"), DeclaredFormat("coco"))},  # duplicate
@@ -115,4 +115,5 @@ def test_incoherent_contracts_cannot_be_built(bad):
 
 
 def test_the_transfer_ceiling_is_a_documented_abuse_bound():
-    assert MAX_TRANSFERS_PER_INTAKE == 1_000
+    assert MAX_TRANSFERS_PER_INTAKE == 12_000
+    assert sum(c.maximum for c in SLOT_CONTRACTS.values()) < MAX_TRANSFERS_PER_INTAKE

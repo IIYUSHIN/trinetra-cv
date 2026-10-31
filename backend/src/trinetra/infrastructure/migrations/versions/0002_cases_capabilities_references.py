@@ -104,7 +104,7 @@ STATEMENTS = [
         case_id TEXT NOT NULL REFERENCES cases (case_id),
         asset_id TEXT NOT NULL REFERENCES asset_records (record_id),
         role TEXT NOT NULL CHECK (role IN ({ROLES})),
-        ordinal INTEGER NOT NULL CHECK (ordinal >= 0 AND ordinal < 1000),
+        ordinal INTEGER NOT NULL CHECK (ordinal >= 0 AND ordinal < 10000),
         linked_at TEXT NOT NULL CHECK ({stamp("linked_at")}),
         PRIMARY KEY (case_id, role, ordinal),
         UNIQUE (case_id, asset_id),

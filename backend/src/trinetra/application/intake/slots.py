@@ -6,9 +6,12 @@ validated formats (adapters arrive in EIB-06): dataset `coco|yolo`, model `pytor
 contributor metadata and assessment profile `json`; references and inference records may declare any
 format or none.
 
+The per-slot ceilings for references (64) and inference records (10,000) come from the I4 source; the
+inference ceiling is an API guard, not validated workload capacity.
+
 PROPOSED (ERR-CL-022): a declaration is optional in every slot (absence is shown, never guessed); the
 slot to AssetKind mapping below; and at most MAX_TRANSFERS_PER_INTAKE transfers (failed ones included) per
-intake as an abuse bound, since "0..N" is otherwise unbounded.
+intake as an abuse bound: every slot full (10,068) plus room for failed attempts.
 """
 
 from __future__ import annotations
@@ -24,8 +27,10 @@ from trinetra.domain.assets import AssetKind
 from trinetra.domain.base import DomainModel
 from trinetra.domain.tokens import CanonicalToken
 
-MAX_TRANSFERS_PER_INTAKE: Final = 1_000
-MAX_SLOT_UPLOADS: Final = MAX_TRANSFERS_PER_INTAKE
+MAX_REFERENCE_UPLOADS: Final = 64
+MAX_INFERENCE_RECORD_UPLOADS: Final = 10_000
+MAX_SLOT_UPLOADS: Final = MAX_INFERENCE_RECORD_UPLOADS
+MAX_TRANSFERS_PER_INTAKE: Final = 12_000
 
 
 class DeclaredFormat(CanonicalToken):
@@ -72,10 +77,10 @@ SLOT_CONTRACTS: Final[Mapping[PackageSlot, SlotContract]] = MappingProxyType({
         slot=PackageSlot.CONTRIBUTOR_METADATA, asset_kind=AssetKind.CONTRIBUTOR_METADATA,
         minimum=0, maximum=1, allowed_formats=_formats("json")),
     PackageSlot.REFERENCE: SlotContract(slot=PackageSlot.REFERENCE, asset_kind=AssetKind.REFERENCE,
-                                        minimum=0, maximum=MAX_SLOT_UPLOADS, allowed_formats=None),
+                                        minimum=0, maximum=MAX_REFERENCE_UPLOADS, allowed_formats=None),
     PackageSlot.INFERENCE_RECORDS: SlotContract(
         slot=PackageSlot.INFERENCE_RECORDS, asset_kind=AssetKind.INFERENCE_RECORD,
-        minimum=0, maximum=MAX_SLOT_UPLOADS, allowed_formats=None),
+        minimum=0, maximum=MAX_INFERENCE_RECORD_UPLOADS, allowed_formats=None),
     PackageSlot.ASSESSMENT_PROFILE: SlotContract(
         slot=PackageSlot.ASSESSMENT_PROFILE, asset_kind=AssetKind.ASSESSMENT_PROFILE,
         minimum=0, maximum=1, allowed_formats=_formats("json")),
@@ -87,6 +92,8 @@ def slot_contract(slot: PackageSlot) -> SlotContract:
 
 
 __all__ = [
+    "MAX_INFERENCE_RECORD_UPLOADS",
+    "MAX_REFERENCE_UPLOADS",
     "MAX_SLOT_UPLOADS",
     "MAX_TRANSFERS_PER_INTAKE",
     "SLOT_CONTRACTS",
