@@ -1,0 +1,65 @@
+{
+  "AssetKind": [
+    "dataset",
+    "model",
+    "contributor_metadata",
+    "reference",
+    "inference_record",
+    "assessment_profile",
+    "inference_output",
+    "inference_receipt"
+  ],
+  "AssuranceSufficiency": [
+    "SUFFICIENT",
+    "LIMITED",
+    "INSUFFICIENT"
+  ],
+  "CapabilityState": [
+    "AVAILABLE",
+    "LIMITED",
+    "UNAVAILABLE"
+  ],
+  "ClaimState": [
+    "SUPPORTED",
+    "CONTRADICTED",
+    "UNRESOLVED",
+    "NOT_ASSESSED"
+  ],
+  "CoverageStatus": [
+    "RESOLVED",
+    "INCONCLUSIVE",
+    "UNAVAILABLE",
+    "NOT_ASSESSED",
+    "NOT_APPLICABLE"
+  ],
+  "Disposition": [
+    "ACCEPT",
+    "REVIEW",
+    "QUARANTINE"
+  ],
+  "ExecutionState": [
+    "PENDING",
+    "RUNNING",
+    "COMPLETED",
+    "CANCEL_REQUESTED",
+    "CANCELLED",
+    "FAILED_INFRASTRUCTURE"
+  ],
+  "FreshnessState": [
+    "CURRENT",
+    "STALE",
+    "INVALIDATED"
+  ],
+  "SystemReadiness": [
+    "READY",
+    "DEGRADED",
+    "BLOCKED",
+    "UNKNOWN"
+  ],
+  "TestVerdict": [
+    "PASS",
+    "FAIL",
+    "INCONCLUSIVE",
+    "ERROR"
+  ]
+}

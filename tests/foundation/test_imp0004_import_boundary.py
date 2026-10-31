@@ -250,3 +250,12 @@ def test_symlinked_package_root_is_rejected(tmp_path):
     link.mkdir()
     (link / "trinetra").symlink_to(real / "trinetra")
     assert {v.rule for v in check_tree(link)} == {"BOOT-001"}
+
+
+def test_pydantic_core_follows_pydantic_exactly(tmp_path):
+    """pydantic_core is pydantic's own dependency: allowed in every layer, not in root modules."""
+    from trinetra.boundaries import THIRD_PARTY
+
+    assert THIRD_PARTY["pydantic_core"] == THIRD_PARTY["pydantic"]
+    assert check_tree(build(tmp_path, {"domain/x.py": "import pydantic_core\n"})) == []
+    assert "DEP-002" in rules(build(tmp_path / "r", {"errors.py": "import pydantic_core\n"}))

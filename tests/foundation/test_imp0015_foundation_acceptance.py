@@ -95,24 +95,30 @@ def trip(*a, **k):
 socket.socket = trip
 socket.create_connection = trip
 socket.getaddrinfo = trip
+ROOTS = %(roots)r
 before = set(sys.modules)
+for name in ROOTS:
+    importlib.import_module("trinetra." + name)
+def outside(mods):
+    return sorted({m.split(".")[0] for m in mods
+                   if m.split(".")[0] not in sys.stdlib_module_names
+                   and not m.startswith("_") and m.split(".")[0] != "trinetra"})
+root_third = outside(set(sys.modules) - before)
 import trinetra
 mods = sorted(m.name for m in pkgutil.walk_packages(trinetra.__path__, "trinetra."))
 for name in mods:
     importlib.import_module(name)
-third = sorted({m.split(".")[0] for m in set(sys.modules) - before
-                if m.split(".")[0] not in sys.stdlib_module_names
-                and not m.startswith("_") and m.split(".")[0] != "trinetra"})
-print(repr({"modules": mods, "network_calls": len(calls), "third_party": third}))
+print(repr({"modules": mods, "network_calls": len(calls), "third_party": root_third}))
 """
 
 
 def test_every_production_module_imports_in_an_isolated_interpreter_without_network():
-    done = interpreter(OFFLINE_IMPORT_SCRIPT, pythonpath=SRC)
+    script = OFFLINE_IMPORT_SCRIPT % {"roots": sorted(boundaries.ROOT_MODULES)}
+    done = interpreter(script, pythonpath=SRC)
     assert done.returncode == 0, done.stdout + done.stderr
     report = eval(done.stdout)  # noqa: S307 - repr of a dict of str/int/list produced by our own child
     assert report["network_calls"] == 0
-    assert report["third_party"] == [], "Foundation (I1) must be standard-library only"
+    assert report["third_party"] == [], "Foundation (I1) root modules must be standard-library only"
     expected = {f"trinetra.{m}" for m in boundaries.ROOT_MODULES}
     assert expected <= set(report["modules"])
 

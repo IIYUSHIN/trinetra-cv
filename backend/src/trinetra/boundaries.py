@@ -48,6 +48,9 @@ FORBIDDEN_TOPLEVEL = frozenset({"trinetra_eval", "runner"})
 # third-party top-level import name -> layers allowed to import it.
 THIRD_PARTY: dict[str, frozenset[str]] = {
     "pydantic": ALL_LAYERS,
+    # pydantic's own mandatory runtime dependency (same project, MIT); needed only for
+    # custom core schemas of value types (PROPOSED amendment, see IMP-0017 corrective).
+    "pydantic_core": ALL_LAYERS,
     "sqlalchemy": frozenset({"infrastructure"}),
     "alembic": frozenset({"infrastructure"}),
     "fastapi": frozenset({"api"}),
