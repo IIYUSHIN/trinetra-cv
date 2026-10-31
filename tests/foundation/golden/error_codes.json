@@ -1,6 +1,7 @@
 {
   "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
+  "COUNTER_INVALID": "trinetra.domain.counters.CounterError",
   "DIGEST_INVALID": "trinetra.digest.DigestError",
   "DOMAIN_CONVENTION": "trinetra.domain.base.DomainConventionError",
   "IDENTIFIER_INVALID": "trinetra.domain.ids.IdentifierError",
