@@ -27,6 +27,7 @@
   "DIGEST_VALUE_INVALID": "trinetra.domain.digests.DigestValueError",
   "DOMAIN_CONVENTION": "trinetra.domain.base.DomainConventionError",
   "IDENTIFIER_INVALID": "trinetra.domain.ids.IdentifierError",
+  "IMMUTABILITY_VIOLATED": "trinetra.infrastructure.asset_immutability.ImmutabilityError",
   "JCS_INVALID": "trinetra.jcs.JcsError",
   "LOG_INVALID": "trinetra.structured_log.LogError",
   "SECURITY_INVALID": "trinetra.security.SecurityError",

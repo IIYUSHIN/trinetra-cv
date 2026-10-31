@@ -24,6 +24,7 @@ from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
 
 from trinetra.errors import TrinetraError
+from trinetra.infrastructure.asset_immutability import ddl_window
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import Connection
@@ -95,7 +96,8 @@ def upgrade_to_head(store: CoreStore, script_location: Path = MIGRATIONS_DIR) ->
                 details={"database_revision": current},
             )
         try:
-            command.upgrade(_config(script_location, connection), "head")
+            with ddl_window(connection):
+                command.upgrade(_config(script_location, connection), "head")
         except Exception as exc:
             raise MigrationError(details={"error_type": type(exc).__name__}) from exc
         revision = current_revision(connection)
