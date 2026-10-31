@@ -9,6 +9,7 @@
   "evgrp": "trinetra.domain.evidence.EvidenceGroupId",
   "evid": "trinetra.domain.evidence.EvidenceId",
   "job": "trinetra.domain.jobs.JobId",
+  "lim": "trinetra.domain.limitations.LimitationId",
   "poldec": "trinetra.domain.policy.PolicyDecisionId",
   "polprof": "trinetra.domain.policy.PolicyProfileId",
   "ref": "trinetra.domain.references.ReferenceId",
