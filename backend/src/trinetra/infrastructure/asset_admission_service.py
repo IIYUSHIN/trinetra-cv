@@ -16,7 +16,8 @@ here and no AssetRecord ever exists without its bytes. The asset identity is the
 supplied file name.
 
 PROPOSED engineering decisions (ERR-CL-017): profile applied streaming-first plus a final full check;
-two records may share one blob; entropy and clock are injected.
+two records may share one blob; entropy and clock are injected. A caller may pass a `record_id` it
+reserved earlier (IMP-0077, ERR-CL-022 PROPOSED); the repository still refuses a reused id.
 """
 
 from __future__ import annotations
@@ -60,6 +61,7 @@ class AdmissionRequest:
     source_metadata_refs: tuple[ReferenceId, ...] = ()
     expected_digest: DigestSha256 | None = None
     expected_size: int | None = None
+    record_id: AssetId | None = None  # an id reserved earlier (intake); None: generate one
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,7 +131,7 @@ class AssetAdmissionService:
         )
         self._profile.check(request.kind, media_type, result.size, guard.head)
         record = AssetRecord(
-            record_id=AssetId.from_entropy(self._entropy),
+            record_id=request.record_id or AssetId.from_entropy(self._entropy),
             asset_kind=request.kind,
             blob_digest=result.digest,
             size_bytes=result.size,

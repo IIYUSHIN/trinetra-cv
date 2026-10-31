@@ -26,6 +26,11 @@ EXPECTED_DIRS = {
     # PROPOSED amendment (ERR-CL-012, IMP-0044): Alembic revision scripts ship inside the package so an
     # offline release carries its own schema authority. The Bible's repository shape does not place them.
     "infrastructure/migrations", "infrastructure/migrations/versions",
+    # PROPOSED amendment (ERR-CL-022, IMP-0071): the later EIB-04 file tree places the intake workflow in
+    # application/intake. Only subpackages that actually exist are listed; each addition is an ERR record.
+    "application/intake", "application/ports",
+    # PROPOSED amendment (ERR-CL-022, IMP-0092..0094): read-side projections and Preflight planning.
+    "application/cases", "application/preflight", "application/projections",
 }
 
 

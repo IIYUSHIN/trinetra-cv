@@ -9,11 +9,15 @@
   "cmd": "trinetra.domain.decisions.CommandId",
   "evgrp": "trinetra.domain.evidence.EvidenceGroupId",
   "evid": "trinetra.domain.evidence.EvidenceId",
+  "intake": "trinetra.domain.intake_ids.IntakeId",
   "job": "trinetra.domain.jobs.JobId",
   "lim": "trinetra.domain.limitations.LimitationId",
   "metric": "trinetra.domain.metrics.MetricId",
   "poldec": "trinetra.domain.policy.PolicyDecisionId",
   "polprof": "trinetra.domain.policy.PolicyProfileId",
+  "quar": "trinetra.domain.intake_ids.QuarantineHandle",
   "ref": "trinetra.domain.references.ReferenceId",
-  "testdef": "trinetra.domain.jobs.TestDefinitionId"
+  "refevt": "trinetra.domain.references.ReferenceEventId",
+  "testdef": "trinetra.domain.jobs.TestDefinitionId",
+  "transfer": "trinetra.domain.intake_ids.TransferId"
 }

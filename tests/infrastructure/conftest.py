@@ -30,3 +30,10 @@ def store(state_root: Path) -> Iterator[CoreStore]:
 @pytest.fixture
 def raw(store: CoreStore) -> RawDb:
     return RawDb(store)
+
+
+@pytest.fixture
+def rig(store: CoreStore, state_root: Path):
+    from commit_support import Rig
+
+    return Rig(store, state_root)

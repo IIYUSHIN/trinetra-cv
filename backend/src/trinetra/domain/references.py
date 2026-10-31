@@ -1,4 +1,4 @@
-"""Typed opaque identifiers: ReferenceId (see trinetra.domain.ids)."""
+"""Typed opaque identifiers: ReferenceId and ReferenceEventId (see trinetra.domain.ids)."""
 
 from __future__ import annotations
 
@@ -11,6 +11,11 @@ class ReferenceId(OpaqueId):
     __slots__ = ()
 
 
+class ReferenceEventId(OpaqueId):
+    PREFIX = "refevt"
+    __slots__ = ()
+
+
 class ReferencePurpose(CanonicalToken):
     """Why a reference exists (e.g. what it may be used to check). Open vocabulary:
     approving a reference for a purpose is a Core decision, never implied by upload."""
@@ -19,4 +24,4 @@ class ReferencePurpose(CanonicalToken):
     __slots__ = ()
 
 
-__all__ = ["ReferenceId", "ReferencePurpose"]
+__all__ = ["ReferenceEventId", "ReferenceId", "ReferencePurpose"]

@@ -23,6 +23,23 @@
     "LIMITED",
     "UNAVAILABLE"
   ],
+  "CaseAssetRole": [
+    "dataset",
+    "model",
+    "contributor_metadata",
+    "reference",
+    "inference_record",
+    "assessment_profile"
+  ],
+  "CaseLifecycleState": [
+    "preflight",
+    "assessing",
+    "results_available",
+    "investigating",
+    "decision_ready",
+    "decided",
+    "attested"
+  ],
   "ClaimState": [
     "SUPPORTED",
     "CONTRADICTED",
@@ -58,6 +75,17 @@
     "REQUIRE_IDENTITY",
     "IGNORE_EXIF",
     "APPLY_EXIF"
+  ],
+  "ReferenceStanding": [
+    "ACTIVE",
+    "REVOKED",
+    "SUPERSEDED",
+    "EXPIRED"
+  ],
+  "ReferenceState": [
+    "ACTIVE",
+    "REVOKED",
+    "SUPERSEDED"
   ],
   "SystemReadiness": [
     "READY",

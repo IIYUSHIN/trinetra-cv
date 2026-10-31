@@ -186,9 +186,14 @@ def test_there_is_no_downgrade_entry_point():
 def test_runtime_record_code_never_imports_the_migration_authority():
     package = Path(runner.__file__).resolve().parent.parent
     allowed = {"migration_runner.py", "unit_of_work.py"}
+    composition_root = Path("api") / "composition.py"  # the one place that opens the store and migrates it
     offenders = []
     for path in package.rglob("*.py"):
-        if "migrations" in path.parts or path.name in allowed:
+        if (
+            "migrations" in path.parts
+            or path.name in allowed
+            or path.relative_to(package) == composition_root
+        ):
             continue
         tree = ast.parse(path.read_text())
         for node in ast.walk(tree):

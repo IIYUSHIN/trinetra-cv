@@ -146,9 +146,11 @@ def tamper(store: CoreStore, *statements: str | tuple[str, tuple[Any, ...]]) -> 
     """
     guards = [
         f"{table}{suffix}"
-        for table in ("audit_events", "audit_event_subjects", "audit_event_contexts", "asset_records")
+        for table in ("audit_events", "audit_event_subjects", "audit_event_contexts", "asset_records",
+                      "case_asset_links", "reference_records", "reference_state_events", "cases")
         for suffix in ("_no_update", "_no_delete", "_no_replace")
-    ] + ["journal_state_monotonic", "journal_state_no_delete"]
+    ] + ["journal_state_monotonic", "journal_state_no_delete", "cases_identity_fixed",
+         "cases_revision_steps_by_one", "cases_born_in_preflight"]
     connection = sqlite3.connect(store.database.path, isolation_level=None, timeout=10)
     try:
         connection.execute("PRAGMA foreign_keys = OFF")
@@ -160,3 +162,15 @@ def tamper(store: CoreStore, *statements: str | tuple[str, tuple[Any, ...]]) -> 
             connection.execute(sql, params)
     finally:
         connection.close()
+
+
+def put_asset(raw: RawDb, n: int, kind: str) -> str:
+    """Insert a blob and an AssetRecord of the given kind straight into the tables; returns its id."""
+    data = f"asset-{n}".encode()
+    row = asset_row(n, data=data, name=f"a{n}.bin")
+    body = {**json.loads(row["body_json"]), "asset_kind": kind}
+    text = json.dumps(body, sort_keys=True, separators=(",", ":"))
+    row = {**row, "asset_kind": kind, "body_json": text, "body_digest": sha(text.encode())}
+    raw.run(INSERT_BLOB, blob_row(data))
+    raw.run(INSERT_ASSET, row)
+    return str(row["record_id"])
