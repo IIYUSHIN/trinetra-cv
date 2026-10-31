@@ -9,7 +9,7 @@ RECEIVED -> FAILED (an error code is required); both are terminal. A FAILED tran
 inspection but no longer counts toward slot cardinality.
 
 Field names `intake_state` / `transfer_state` name their dimension; a bare `state` is forbidden by the
-domain conventions (ERR-CL-021, PROPOSED).
+domain conventions (ERR-CL-022, PROPOSED).
 """
 
 from __future__ import annotations

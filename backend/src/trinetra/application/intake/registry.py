@@ -18,7 +18,7 @@ from contextlib import contextmanager
 from trinetra.application.errors import ApplicationConflictError, IntakeNotFoundError
 from trinetra.application.intake.records import IntakeSession
 from trinetra.domain.decisions import CommandId
-from trinetra.domain.intake_ids import IntakeId
+from trinetra.domain.intake_ids import IntakeId, TransferId
 
 
 class InMemoryIntakeRegistry:
@@ -27,6 +27,7 @@ class InMemoryIntakeRegistry:
         self._sessions: dict[IntakeId, IntakeSession] = {}
         self._locks: dict[IntakeId, threading.RLock] = {}
         self._commands: dict[CommandId, tuple[IntakeId, str | None]] = {}
+        self._transfer_commands: dict[CommandId, tuple[IntakeId, TransferId, str]] = {}
 
     def add(self, session: IntakeSession) -> None:
         with self._guard:
@@ -75,6 +76,17 @@ class InMemoryIntakeRegistry:
     def remember(self, command_id: CommandId, intake_id: IntakeId, fingerprint: str | None) -> None:
         with self._guard:
             self._commands.setdefault(command_id, (intake_id, fingerprint))
+
+    def recall_transfer(self, command_id: CommandId) -> tuple[IntakeId, TransferId, str] | None:
+        with self._guard:
+            return self._transfer_commands.get(command_id)
+
+    def remember_transfer(
+        self, command_id: CommandId, intake_id: IntakeId, transfer_id: TransferId, fingerprint: str
+    ) -> None:
+        """First writer wins, like `remember`: a later identical command keeps the original transfer."""
+        with self._guard:
+            self._transfer_commands.setdefault(command_id, (intake_id, transfer_id, fingerprint))
 
 
 __all__ = ["InMemoryIntakeRegistry"]

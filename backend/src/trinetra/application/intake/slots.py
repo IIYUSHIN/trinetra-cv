@@ -6,7 +6,7 @@ validated formats (adapters arrive in EIB-06): dataset `coco|yolo`, model `pytor
 contributor metadata and assessment profile `json`; references and inference records may declare any
 format or none.
 
-PROPOSED (ERR-CL-021): a declaration is optional in every slot (absence is shown, never guessed); the
+PROPOSED (ERR-CL-022): a declaration is optional in every slot (absence is shown, never guessed); the
 slot to AssetKind mapping below; and at most MAX_TRANSFERS_PER_INTAKE transfers (failed ones included) per
 intake as an abuse bound, since "0..N" is otherwise unbounded.
 """

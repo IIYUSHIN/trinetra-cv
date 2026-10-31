@@ -1,6 +1,6 @@
 """Typed opaque identifiers for the intake workflow: IntakeId, TransferId, QuarantineHandle.
 
-PROPOSED prefixes (ERR-CL-021): `intake`, `transfer`, `quar`. A QuarantineHandle names an incoming
+PROPOSED prefixes (ERR-CL-022): `intake`, `transfer`, `quar`. A QuarantineHandle names an incoming
 byte stream awaiting admission; it is an identifier, never a path (see trinetra.infrastructure).
 """
 

@@ -99,3 +99,58 @@ class SequentialIds:
 
     def new_quarantine_handle(self):
         return self._draw(QuarantineHandle)
+
+
+class MemoryQuarantine:
+    """QuarantinePort double: bytes in a dict, the size ceiling enforced while streaming."""
+
+    def __init__(self):
+        self.entries = {}
+        self.removed = []
+        self.fail_remove = False
+
+    def create_entry(self, handle):
+        if handle in self.entries:
+            raise FileExistsError(str(handle))
+        self.entries[handle] = bytearray()
+
+    def write_stream(self, handle, source, *, max_bytes):
+        from trinetra.application.errors import TransferTooLargeError
+
+        buffer = self.entries[handle]
+        while chunk := source.read(4096):
+            if len(buffer) + len(chunk) > max_bytes:
+                raise TransferTooLargeError(details={"max_bytes": max_bytes})
+            buffer.extend(chunk)
+        return len(buffer)
+
+    def remove(self, handle):
+        if self.fail_remove:
+            raise OSError("disk says no")
+        self.removed.append(handle)
+        self.entries.pop(handle, None)
+
+
+class ScriptedStream:
+    """A byte stream that can pause, call back, or fail part way through."""
+
+    def __init__(self, data=b"payload", *, fail_after=None, error=None, on_read=None):
+        import io
+
+        self._buffer = io.BytesIO(data)
+        self.fail_after = fail_after
+        self.error = error
+        self.on_read = on_read
+        self.reads = 0
+        self.delivered = 0
+
+    def read(self, size, /):
+        self.reads += 1
+        if self.on_read is not None:
+            callback, self.on_read = self.on_read, None
+            callback()
+        if self.fail_after is not None and self.delivered >= self.fail_after:
+            raise self.error or OSError("connection reset")
+        chunk = self._buffer.read(size if self.fail_after is None else min(size, 3))
+        self.delivered += len(chunk)
+        return chunk
