@@ -37,3 +37,9 @@ runner. Subsequent standalone and detailed runs passed; the intermediate cause i
 not established. No tests or dependencies were changed to obtain those passes.
 Lint repairs: preserve source-defined exception names with reasoned N818 comments;
 use tuple parametrize names; wrap an overlong test line. mypy strict passes.
+
+IMP-0286: implemented Trusted key identity vs kid; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0286: implemented Trusted key identity vs kid; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
