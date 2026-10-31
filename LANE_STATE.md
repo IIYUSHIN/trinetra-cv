@@ -126,3 +126,7 @@ Final full validation after IMP-0291: 2869 passed, 6 skipped in 36.01s; seven qu
 IMP-0292: implemented Tensor dtype shape layout canonicalization; provisional under ERR-CL-023.
 RED recorded before implementation. Mutation 1/1 killed and restored.
 Final full validation after IMP-0292: 2879 passed, 6 skipped in 36.24s; seven quality gates PASS; both commands exit 0.
+
+IMP-0293: implemented Model content digest binding; provisional under ERR-CL-023.
+RED recorded before implementation. Mutation 1/1 killed and restored.
+Final full validation after IMP-0293: 2891 passed, 6 skipped in 35.98s; seven quality gates PASS; both commands exit 0.
