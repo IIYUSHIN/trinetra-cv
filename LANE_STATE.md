@@ -61,3 +61,6 @@ RED recorded before implementation. Mutation 1/1 killed and restored.
 
 IMP-0290: implemented Original input byte digest; independent of receipt/stream IDs.
 RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0299: implemented Receipt sequence number; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
