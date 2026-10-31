@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 
 import pytest
 
+from persistence_support import tamper
 from trinetra.domain.asset_record import ActorId
 from trinetra.domain.audit import (
     AuditDetail,
@@ -20,7 +21,6 @@ from trinetra.domain.audit import (
 )
 from trinetra.domain.audit_link import body_digest, genesis_link, link_digest
 from trinetra.domain.digests import DigestSha256
-from trinetra.infrastructure.asset_immutability import ddl_window
 from trinetra.infrastructure.audit_repository import (
     DEFAULT_JOURNAL,
     DEFAULT_PAGE,
@@ -233,22 +233,6 @@ def test_the_page_ceiling_is_inclusive(store):
 
 
 # ------------------------------------------------------------------------------ tamper detection
-def tamper(store, *statements):
-    """Simulate out-of-band damage: drop the guards in a DDL window, then edit the rows."""
-    with store.unit_of_work() as uow:
-        with ddl_window(uow.connection):
-            for trigger in (
-                "audit_events_no_update", "audit_event_subjects_no_update", "audit_event_contexts_no_update",
-                "audit_events_no_delete", "audit_event_subjects_no_delete", "audit_event_contexts_no_delete",
-                "journal_state_monotonic",
-            ):  # fmt: skip
-                uow.connection.exec_driver_sql(f"DROP TRIGGER {trigger}")
-            uow.connection.exec_driver_sql("PRAGMA ignore_check_constraints = ON")
-        for sql in statements:
-            uow.connection.exec_driver_sql(sql)
-        uow.commit()
-
-
 def read_back(store, repository, event):
     with store.unit_of_work() as uow:
         try:

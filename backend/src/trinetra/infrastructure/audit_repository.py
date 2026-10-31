@@ -146,6 +146,20 @@ def _digest(text: object) -> DigestSha256:
         raise AuditIntegrityError(msg) from exc
 
 
+def load_event(uow: UnitOfWork, row: tuple[Any, ...]) -> AuditEvent:
+    """Fetch an event row's side rows and run `check_stored_event` over all of it."""
+    subjects = uow.connection.exec_driver_sql(
+        "SELECT ordinal, object_type, object_id, record_digest FROM audit_event_subjects "
+        "WHERE event_id = ? ORDER BY ordinal",
+        (row[0],),
+    ).fetchall()
+    contexts = uow.connection.exec_driver_sql(
+        "SELECT ordinal, context_id FROM audit_event_contexts WHERE event_id = ? ORDER BY ordinal",
+        (row[0],),
+    ).fetchall()
+    return check_stored_event(row, [tuple(r) for r in subjects], [tuple(r) for r in contexts])
+
+
 class AuditRepository:
     def __init__(
         self, clock: Clock | None = None, entropy: Callable[[int], bytes] = os.urandom
@@ -266,16 +280,7 @@ class AuditRepository:
 
     @staticmethod
     def _load(uow: UnitOfWork, row: tuple[Any, ...]) -> AuditEvent:
-        subjects = uow.connection.exec_driver_sql(
-            "SELECT ordinal, object_type, object_id, record_digest FROM audit_event_subjects "
-            "WHERE event_id = ? ORDER BY ordinal",
-            (row[0],),
-        ).fetchall()
-        contexts = uow.connection.exec_driver_sql(
-            "SELECT ordinal, context_id FROM audit_event_contexts WHERE event_id = ? ORDER BY ordinal",
-            (row[0],),
-        ).fetchall()
-        return check_stored_event(row, [tuple(r) for r in subjects], [tuple(r) for r in contexts])
+        return load_event(uow, row)
 
 
 __all__ = [
@@ -289,4 +294,5 @@ __all__ = [
     "AuditQueryError",
     "AuditRepository",
     "check_stored_event",
+    "load_event",
 ]

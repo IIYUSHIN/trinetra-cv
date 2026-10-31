@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sqlite3
 from collections.abc import Callable
 from typing import Any
 
@@ -135,3 +136,27 @@ def advance_journal(raw: RawDb, journal: str = "local_main") -> None:
 
 
 Builder = Callable[..., dict[str, Any]]
+
+
+def tamper(store: CoreStore, *statements: str | tuple[str, tuple[Any, ...]]) -> None:
+    """Out-of-band damage: a plain sqlite3 connection straight to the file (no Core engine, no guards).
+
+    Models someone with write access to the database file: foreign keys and CHECKs are switched off and
+    the append-only triggers dropped before the given SQL runs. Never available to production code.
+    """
+    guards = [
+        f"{table}{suffix}"
+        for table in ("audit_events", "audit_event_subjects", "audit_event_contexts", "asset_records")
+        for suffix in ("_no_update", "_no_delete", "_no_replace")
+    ] + ["journal_state_monotonic", "journal_state_no_delete"]
+    connection = sqlite3.connect(store.database.path, isolation_level=None, timeout=10)
+    try:
+        connection.execute("PRAGMA foreign_keys = OFF")
+        connection.execute("PRAGMA ignore_check_constraints = ON")
+        for name in guards:
+            connection.execute(f"DROP TRIGGER IF EXISTS {name}")
+        for item in statements:
+            sql, params = (item, ()) if isinstance(item, str) else item
+            connection.execute(sql, params)
+    finally:
+        connection.close()
