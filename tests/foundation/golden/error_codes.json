@@ -37,6 +37,7 @@
   "IDENTIFIER_INVALID": "trinetra.domain.ids.IdentifierError",
   "IMMUTABILITY_VIOLATED": "trinetra.infrastructure.asset_immutability.ImmutabilityError",
   "INTAKE_NOT_FOUND": "trinetra.application.errors.IntakeNotFoundError",
+  "INTAKE_NOT_READY": "trinetra.application.errors.IntakeNotReadyError",
   "INTAKE_STATE_CONFLICT": "trinetra.application.errors.IntakeStateConflictError",
   "JCS_INVALID": "trinetra.jcs.JcsError",
   "LOG_INVALID": "trinetra.structured_log.LogError",

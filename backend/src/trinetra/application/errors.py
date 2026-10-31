@@ -25,6 +25,11 @@ class IntakeStateConflictError(ApplicationConflictError):
     default_message = "the intake cannot accept this operation in its current state"
 
 
+class IntakeNotReadyError(IntakeStateConflictError):
+    code = "INTAKE_NOT_READY"
+    default_message = "the intake does not yet hold what a commit needs"
+
+
 class CommandValidationError(ApplicationError):
     code = "COMMAND_VALIDATION_FAILED"
     default_message = "the command is not valid"
@@ -50,6 +55,7 @@ __all__ = [
     "ApplicationError",
     "CommandValidationError",
     "IntakeNotFoundError",
+    "IntakeNotReadyError",
     "IntakeStateConflictError",
     "TransferRejectedError",
     "TransferTooLargeError",

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from trinetra.application.intake.enums import PackageSlot
 from trinetra.application.intake.records import OriginalFilename
@@ -49,6 +49,13 @@ class CommitIntakeResult(DomainModel):
     case_id: CaseId
     case_state_revision: CaseStateRevision
     admitted_asset_ids: tuple[AssetId, ...] = Field(min_length=2)
+
+    @model_validator(mode="after")
+    def _distinct(self) -> CommitIntakeResult:
+        if len(set(self.admitted_asset_ids)) != len(self.admitted_asset_ids):
+            msg = "admitted asset ids must be distinct"
+            raise ValueError(msg)
+        return self
 
 
 __all__ = ["CommitIntakeCommand", "CommitIntakeResult", "CreateIntakeCommand", "ReceiveTransferCommand"]
