@@ -154,3 +154,36 @@ class ScriptedStream:
         chunk = self._buffer.read(size if self.fail_after is None else min(size, 3))
         self.delivered += len(chunk)
         return chunk
+
+
+class FakeAssets:
+    """AssetAdmissionPort + AssetLookupPort double sharing one 'repository' of reserved ids."""
+
+    def __init__(self):
+        self.records = {}
+        self.calls = []
+        self.error = None
+        self.wrong_id = False
+        self.on_admit = None
+
+    def exists(self, asset_id):
+        return asset_id in self.records
+
+    def admit(self, *, handle, asset_id, kind, media_type, supplied_name):
+        from trinetra.domain.asset_record import ActorId, AssetRecord
+        from trinetra.domain.digests import DigestSha256
+
+        self.calls.append({"handle": handle, "asset_id": asset_id, "kind": kind,
+                           "media_type": media_type, "supplied_name": supplied_name})  # fmt: skip
+        if self.on_admit is not None:
+            self.on_admit()
+        if self.error is not None:
+            raise self.error
+        record_id = AssetId.from_entropy(lambda n: b"\x7f" * n) if self.wrong_id else asset_id
+        record = AssetRecord(
+            record_id=record_id, asset_kind=kind, blob_digest=DigestSha256.of(b"x"), size_bytes=1,
+            media_type=media_type, supplied_name=supplied_name, created_at=T0, created_by=ActorId("core"),
+            parent_asset_refs=(), source_metadata_refs=(),
+        )  # fmt: skip
+        self.records[record_id] = record
+        return record
