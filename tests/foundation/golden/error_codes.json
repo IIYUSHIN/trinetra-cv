@@ -3,6 +3,8 @@
   "CAS_COMMIT_FAILED": "trinetra.infrastructure.cas_commit.CommitError",
   "CAS_LAYOUT_INVALID": "trinetra.infrastructure.cas_layout.CasLayoutError",
   "CAS_OBJECT_EXISTS": "trinetra.infrastructure.cas_commit.ObjectExistsError",
+  "CAS_OBJECT_MALFORMED": "trinetra.infrastructure.cas_read.ObjectShapeError",
+  "CAS_OBJECT_MISSING": "trinetra.infrastructure.cas_read.ObjectMissingError",
   "CAS_QUARANTINE_INVALID": "trinetra.infrastructure.cas_quarantine.QuarantineError",
   "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
