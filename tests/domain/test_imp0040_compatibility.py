@@ -25,7 +25,7 @@ from pydantic import ValidationError
 import trinetra.domain as domain_pkg
 from trinetra.domain.asset_refs import AssetRef
 from trinetra.domain.assets import AssetId, AssetKind
-from trinetra.domain.base import FORBIDDEN_FIELD_NAMES, DomainModel
+from trinetra.domain.base import FORBIDDEN_FIELD_NAMES, SCORE_FIELD_EXEMPTIONS, DomainModel
 from trinetra.domain.capability import CapabilityName, CapabilityRequirement, CapabilityState
 from trinetra.domain.digests import ContentIdentity, DigestSha256
 from trinetra.domain.entity import EntityRef, EntityType
@@ -102,7 +102,10 @@ def test_models_were_discovered():
 
 @pytest.mark.parametrize("name", sorted(MODELS))
 def test_no_model_declares_a_generic_status_or_score(name):
-    for field in MODELS[name].model_fields:
+    model = MODELS[name]
+    for field in model.model_fields:
+        if (f"{model.__module__}.{model.__qualname__}", field) in SCORE_FIELD_EXEMPTIONS:
+            continue  # the one scoped exemption (ERR-CL-020): Detection.score is a raw detector output
         assert field not in FORBIDDEN_FIELD_NAMES and "score" not in field and field != "confidence"
 
 
