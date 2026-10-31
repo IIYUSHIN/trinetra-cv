@@ -55,3 +55,6 @@ RED recorded before implementation. Mutation 1/1 killed and restored.
 
 IMP-0288: implemented Deterministic CBOR encoder profile; independent of receipt/stream IDs.
 RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0289: implemented COSE_Sign1 protected-header profile; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
