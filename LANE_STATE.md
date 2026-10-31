@@ -43,3 +43,12 @@ RED recorded before implementation. Mutation 1/1 killed and restored.
 
 IMP-0286: implemented Trusted key identity vs kid; independent of receipt/stream IDs.
 RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0287: implemented Ed25519 key-purpose profile; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0287: implemented Ed25519 key-purpose profile; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0287: implemented Ed25519 key-purpose profile; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
