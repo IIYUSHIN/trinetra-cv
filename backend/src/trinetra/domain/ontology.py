@@ -17,7 +17,6 @@ safety ceiling); model labels are uint32.
 from __future__ import annotations
 
 import re
-import unicodedata
 from functools import cached_property
 from typing import Annotated, Final
 
@@ -25,11 +24,11 @@ from pydantic import AfterValidator, Field, Strict, model_validator
 
 from trinetra.domain.base import DomainModel
 from trinetra.domain.detection import MAX_CLASS_INDEX, ClassIndex
+from trinetra.domain.logical_identifier import LogicalIdentifier
 from trinetra.domain.tokens import CanonicalToken
 from trinetra.errors import TrinetraError
 
 MAX_CLASSES: Final = 100_000
-MAX_NAME_LENGTH: Final = 128
 _VISIBLE_ASCII: Final = re.compile(r"[\x21-\x7e]{1,128}")
 
 
@@ -43,23 +42,6 @@ class OntologyId(CanonicalToken):
     __slots__ = ()
 
 
-def _logical_identifier(value: str) -> str:
-    if not 1 <= len(value) <= MAX_NAME_LENGTH:
-        msg = f"name: length must be within [1, {MAX_NAME_LENGTH}] code points"
-        raise ValueError(msg)
-    if unicodedata.normalize("NFC", value) != value:
-        msg = "name: must be NFC-normalised"
-        raise ValueError(msg)
-    if value != value.strip(" ") or "  " in value:
-        msg = "name: spaces only singly between words"
-        raise ValueError(msg)
-    for ch in value:
-        if ch != " " and (ch.isspace() or unicodedata.category(ch)[0] in "CZ"):
-            msg = f"name: control, format, separator or unassigned code point U+{ord(ch):04X}"
-            raise ValueError(msg)
-    return value
-
-
 def _source_id(value: str) -> str:
     if not _VISIBLE_ASCII.fullmatch(value):
         msg = "source_id: 1..128 visible ASCII characters"
@@ -67,7 +49,6 @@ def _source_id(value: str) -> str:
     return value
 
 
-LogicalIdentifier = Annotated[str, Strict(), AfterValidator(_logical_identifier)]
 SourceClassId = Annotated[str, Strict(), AfterValidator(_source_id)]
 
 

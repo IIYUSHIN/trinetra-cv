@@ -54,10 +54,23 @@
     "STALE",
     "INVALIDATED"
   ],
+  "IntakeState": [
+    "OPEN",
+    "COMMITTED",
+    "ABANDONED"
+  ],
   "OrientationPolicy": [
     "REQUIRE_IDENTITY",
     "IGNORE_EXIF",
     "APPLY_EXIF"
+  ],
+  "PackageSlot": [
+    "dataset",
+    "model",
+    "contributor_metadata",
+    "reference",
+    "inference_records",
+    "assessment_profile"
   ],
   "SystemReadiness": [
     "READY",
@@ -70,5 +83,10 @@
     "FAIL",
     "INCONCLUSIVE",
     "ERROR"
+  ],
+  "TransferState": [
+    "RECEIVED",
+    "ADMITTED",
+    "FAILED"
   ]
 }

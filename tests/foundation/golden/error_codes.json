@@ -1,4 +1,6 @@
 {
+  "APPLICATION_CONFLICT": "trinetra.application.errors.ApplicationConflictError",
+  "APPLICATION_ERROR": "trinetra.application.errors.ApplicationError",
   "ASSET_ALREADY_EXISTS": "trinetra.infrastructure.asset_repository.AssetExistsError",
   "ASSET_IDENTITY_VIOLATION": "trinetra.infrastructure.asset_identity.ContentIdentityError",
   "ASSET_PROFILE_REJECTED": "trinetra.domain.asset_admission.AdmissionProfileError",
@@ -17,6 +19,7 @@
   "CAS_OBJECT_MISSING": "trinetra.infrastructure.cas_read.ObjectMissingError",
   "CAS_QUARANTINE_INVALID": "trinetra.infrastructure.cas_quarantine.QuarantineError",
   "CLASS_MAP_INVALID": "trinetra.domain.ontology.ClassMapError",
+  "COMMAND_VALIDATION_FAILED": "trinetra.application.errors.CommandValidationError",
   "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
   "COUNTER_INVALID": "trinetra.domain.counters.CounterError",
@@ -33,6 +36,7 @@
   "DOMAIN_CONVENTION": "trinetra.domain.base.DomainConventionError",
   "IDENTIFIER_INVALID": "trinetra.domain.ids.IdentifierError",
   "IMMUTABILITY_VIOLATED": "trinetra.infrastructure.asset_immutability.ImmutabilityError",
+  "INTAKE_STATE_CONFLICT": "trinetra.application.errors.IntakeStateConflictError",
   "JCS_INVALID": "trinetra.jcs.JcsError",
   "LOG_INVALID": "trinetra.structured_log.LogError",
   "SECURITY_INVALID": "trinetra.security.SecurityError",
