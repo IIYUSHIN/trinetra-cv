@@ -54,6 +54,11 @@
     "STALE",
     "INVALIDATED"
   ],
+  "OrientationPolicy": [
+    "REQUIRE_IDENTITY",
+    "IGNORE_EXIF",
+    "APPLY_EXIF"
+  ],
   "SystemReadiness": [
     "READY",
     "DEGRADED",
