@@ -56,10 +56,12 @@ class Rig:
         self.service = CommitIntakeService(self.step, self.registry, self.cases, self.clock)
         self.intake = None
         self._n = 0
+        self._intakes = 0
 
     def new_intake(self, label=None):
+        self._intakes += 1
         self.intake = CreateIntakeService(self.clock, self.ids, self.registry).create(
-            CreateIntakeCommand(command_id=cid(250), case_label=label)).intake_id
+            CreateIntakeCommand(command_id=cid(200 + self._intakes), case_label=label)).intake_id
         return self.intake
 
     def upload(self, slot, fmt=None, media="application/octet-stream", data=ZIP):

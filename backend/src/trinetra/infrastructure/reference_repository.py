@@ -31,6 +31,8 @@ from trinetra.domain.timing import UtcTimestamp
 from trinetra.errors import TrinetraError
 
 if TYPE_CHECKING:
+    from collections.abc import Collection
+
     from trinetra.infrastructure.unit_of_work import UnitOfWork
 
 _RECORD: Final = "reference_id, asset_id, purpose, authority, valid_from, valid_until, created_at"
@@ -146,6 +148,24 @@ class ReferenceRepository:
                 if len(usable) == limit:
                     break
         return tuple(usable)
+
+    def usable_for_assets(
+        self, uow: UnitOfWork, asset_ids: Collection[AssetId], now: UtcTimestamp
+    ) -> tuple[ReferenceAssuranceRecord, ...]:
+        """References, usable now, whose asset is one of `asset_ids` (at most MAX_FIND distinct ids)."""
+        wanted = sorted({str(asset_id) for asset_id in asset_ids})
+        if len(wanted) > MAX_FIND:
+            raise ReferenceQueryError(f"at most {MAX_FIND} assets may be asked about at once")
+        if not wanted:
+            return ()
+        marks = ", ".join("?" * len(wanted))
+        rows = uow.connection.exec_driver_sql(
+            f"SELECT {_RECORD} FROM reference_records WHERE asset_id IN ({marks}) "  # noqa: S608
+            "ORDER BY valid_from, reference_id",
+            tuple(wanted),
+        ).fetchall()
+        records = (self._record(tuple(row)) for row in rows)
+        return tuple(r for r in records if self.history(uow, r.reference_id).is_usable(r, now))
 
     def append_state_event(
         self, uow: UnitOfWork, event: ReferenceStateEvent, expected_previous_sequence: int
