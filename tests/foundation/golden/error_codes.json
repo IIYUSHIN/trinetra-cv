@@ -1,6 +1,7 @@
 {
   "CAS_ADMISSION_REJECTED": "trinetra.infrastructure.cas_admission.AdmissionError",
   "CAS_COMMIT_FAILED": "trinetra.infrastructure.cas_commit.CommitError",
+  "CAS_DUPLICATE_CONFLICT": "trinetra.infrastructure.cas_store.DuplicateConflictError",
   "CAS_LAYOUT_INVALID": "trinetra.infrastructure.cas_layout.CasLayoutError",
   "CAS_OBJECT_EXISTS": "trinetra.infrastructure.cas_commit.ObjectExistsError",
   "CAS_OBJECT_MALFORMED": "trinetra.infrastructure.cas_read.ObjectShapeError",
