@@ -1,5 +1,6 @@
 {
   "CAS_LAYOUT_INVALID": "trinetra.infrastructure.cas_layout.CasLayoutError",
+  "CAS_QUARANTINE_INVALID": "trinetra.infrastructure.cas_quarantine.QuarantineError",
   "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
   "COUNTER_INVALID": "trinetra.domain.counters.CounterError",
