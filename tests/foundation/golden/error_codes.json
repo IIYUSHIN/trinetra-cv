@@ -48,6 +48,8 @@
   "INTAKE_STATE_CONFLICT": "trinetra.application.errors.IntakeStateConflictError",
   "JCS_INVALID": "trinetra.jcs.JcsError",
   "LOG_INVALID": "trinetra.structured_log.LogError",
+  "PREFLIGHT_PLAN_INVALID": "trinetra.application.preflight.planner.PreflightPlanError",
+  "PROJECTION_INCONSISTENT": "trinetra.application.projections.shared.ProjectionInconsistentError",
   "REFERENCE_ALREADY_EXISTS": "trinetra.infrastructure.reference_repository.ReferenceExistsError",
   "REFERENCE_ASSET_INVALID": "trinetra.infrastructure.reference_repository.ReferenceAssetError",
   "REFERENCE_INVARIANT_VIOLATED": "trinetra.domain.reference_records.ReferenceInvariantError",
