@@ -7,7 +7,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from trinetra.jcs import canonical_digest
-from trinetra_eval.visible import VisibleScenarioManifest
+from trinetra_eval.visible import VisibleManifestValidationError, VisibleScenarioManifest
 
 
 def fields():
@@ -33,7 +33,7 @@ def test_manifest_exports_only_visible_fields_and_checks_digest():
     manifest = make()
     assert set(manifest.to_wire()) == set(fields()) | {"visible_manifest_digest"}
     assert "BLIND" not in manifest.model_dump_json()
-    with pytest.raises(ValueError):
+    with pytest.raises(VisibleManifestValidationError):
         manifest.evolve(resource_hint="GPU")
 
 
@@ -41,12 +41,12 @@ def test_manifest_exports_only_visible_fields_and_checks_digest():
     st.sampled_from(["cause", "split", "generation_seed", "oracle", "affected_entities", "evaluation_family"])
 )
 def test_hidden_fields_are_not_silently_discarded(field):
-    with pytest.raises(ValueError):
+    with pytest.raises(VisibleManifestValidationError):
         make(**{field: "HIDDEN_CANARY"})
 
 
 def test_unknown_schema_and_unstructured_payload_rejected():
-    with pytest.raises(ValueError):
+    with pytest.raises(VisibleManifestValidationError):
         make(schema_version=2)
-    with pytest.raises(ValueError):
+    with pytest.raises(VisibleManifestValidationError):
         make(resource_hint={"hidden": "CANARY"})

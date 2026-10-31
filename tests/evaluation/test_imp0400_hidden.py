@@ -85,13 +85,40 @@ def test_validation_error_has_no_truth_or_input_bearing_context():
 
 
 def test_visible_validation_does_not_echo_rejected_private_input():
-    from trinetra_eval.visible import VisibleScenarioManifest
+    from trinetra_eval.visible import VisibleManifestValidationError, VisibleScenarioManifest
 
     for operation in (
         lambda: VisibleScenarioManifest(scenario_id=CANARY),
         lambda: VisibleScenarioManifest.model_validate_json('{"scenario_id":"' + CANARY + '"}'),
     ):
-        with pytest.raises(ValueError) as error:
+        with pytest.raises(VisibleManifestValidationError) as error:
+            operation()
+        assert CANARY not in str(error.value)
+        assert error.value.__context__ is None
+
+
+def test_standard_getstate_hook_does_not_return_private_bytes():
+    with pytest.raises(TypeError):
+        truth().__getstate__()
+
+
+def test_visible_round_trip_and_typeadapter_validation_are_safe():
+    from pydantic import TypeAdapter
+
+    from trinetra_eval.visible import VisibleManifestValidationError, VisibleScenarioManifest
+
+    from .test_imp0399_visible import make
+
+    record = make()
+    assert VisibleScenarioManifest.model_validate_json(record.model_dump_json()) == record
+    assert TypeAdapter(VisibleScenarioManifest).validate_json(record.model_dump_json()) == record
+    operations = (
+        lambda: VisibleScenarioManifest.model_validate_strings({"scenario_id": CANARY}),
+        lambda: TypeAdapter(VisibleScenarioManifest).validate_python({"scenario_id": CANARY}),
+        lambda: TypeAdapter(VisibleScenarioManifest).validate_python(CANARY),
+    )
+    for operation in operations:
+        with pytest.raises(VisibleManifestValidationError) as error:
             operation()
         assert CANARY not in str(error.value)
         assert error.value.__context__ is None

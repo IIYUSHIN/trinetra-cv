@@ -1,10 +1,10 @@
 # Codex B / L-B-1
 Base: 2a5db1a39402d8285ce48da71cd3436bce0db91a
 Branch: codex-b/B1-eval-foundation
-Done (author-run, contingent): IMP-0396..0400
-Next: IMP-0401 through IMP-0420 in frozen order.
+Done (author-run, contingent): IMP-0396..0401
+Next: IMP-0402 through IMP-0420 in frozen order.
 Gate: all seven PASS; full regression passed before this commit.
-Mutation: 0400: 1/1 killed; 'declared != canonical_digest(parsed)' -> 'declared == canonical_digest(parsed)'; no equivalent mutants.
+Mutation: 0401: 1/1 killed; 'APPLIED = "APPLIED"' -> 'APPLIED = "APPLIED_BROKEN"'; no equivalent mutants.
 Baseline: 2023 passed / 4 skipped, PYTHONUNBUFFERED=1; unrestricted execution required for existing filesystem/socket tests.
 NOT_RUN: real Blind/Final populations, real keys, R1-R23, deployment/container isolation, second host, independent acceptance.
 ERR-CL-014/015 remain PROPOSED; out-of-order work is not Bible-compliant until approved. No acceptance claim.

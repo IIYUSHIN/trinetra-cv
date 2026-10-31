@@ -59,6 +59,9 @@ class PrivateRecord:
     def __setattr__(self, name: str, value: object) -> None:
         raise AttributeError("private evaluation record is immutable")
 
+    def __getstate__(self) -> object:
+        raise TypeError("private evaluation record cannot be serialized")
+
     def __reduce__(self) -> tuple[Any, ...]:
         raise TypeError("private evaluation record cannot be serialized")
 
