@@ -1,4 +1,5 @@
 {
+  "ASSET_PROFILE_REJECTED": "trinetra.domain.asset_admission.AdmissionProfileError",
   "CAS_ADMISSION_REJECTED": "trinetra.infrastructure.cas_admission.AdmissionError",
   "CAS_COMMIT_FAILED": "trinetra.infrastructure.cas_commit.CommitError",
   "CAS_DUPLICATE_CONFLICT": "trinetra.infrastructure.cas_store.DuplicateConflictError",
