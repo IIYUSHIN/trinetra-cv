@@ -67,3 +67,6 @@ RED recorded before implementation. Mutation 1/1 killed and restored.
 
 IMP-0300: implemented Previous receipt digest; independent of receipt/stream IDs.
 RED recorded before implementation. Mutation 1/1 killed and restored.
+
+IMP-0301: implemented Challenge/nonce field; independent of receipt/stream IDs.
+RED recorded before implementation. Mutation 1/1 killed and restored.
