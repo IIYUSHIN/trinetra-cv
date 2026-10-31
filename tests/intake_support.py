@@ -61,3 +61,41 @@ def session(transfers=(), state=IntakeState.OPEN, label=None):
 
 def ready_session():
     return session([transfer(PackageSlot.DATASET, "coco"), transfer(PackageSlot.MODEL, "onnx")])
+
+
+class FrozenClock:
+    """ClockPort double: time only moves when the test says so."""
+
+    def __init__(self, now=T0):
+        self.current = now
+
+    def now(self):
+        return self.current
+
+    def set(self, moment):
+        self.current = moment
+
+
+class SequentialIds:
+    """IdFactoryPort double: distinct deterministic ids."""
+
+    def __init__(self):
+        self._n = itertools.count(1)
+
+    def _draw(self, cls):
+        return cls.from_entropy(lambda size: next(self._n).to_bytes(size, "big"))
+
+    def new_intake_id(self):
+        return self._draw(IntakeId)
+
+    def new_transfer_id(self):
+        return self._draw(TransferId)
+
+    def new_asset_id(self):
+        return self._draw(AssetId)
+
+    def new_case_id(self):
+        return self._draw(CaseId)
+
+    def new_quarantine_handle(self):
+        return self._draw(QuarantineHandle)

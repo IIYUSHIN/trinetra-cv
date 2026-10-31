@@ -36,6 +36,7 @@
   "DOMAIN_CONVENTION": "trinetra.domain.base.DomainConventionError",
   "IDENTIFIER_INVALID": "trinetra.domain.ids.IdentifierError",
   "IMMUTABILITY_VIOLATED": "trinetra.infrastructure.asset_immutability.ImmutabilityError",
+  "INTAKE_NOT_FOUND": "trinetra.application.errors.IntakeNotFoundError",
   "INTAKE_STATE_CONFLICT": "trinetra.application.errors.IntakeStateConflictError",
   "JCS_INVALID": "trinetra.jcs.JcsError",
   "LOG_INVALID": "trinetra.structured_log.LogError",
@@ -43,5 +44,7 @@
   "TIME_INVALID": "trinetra.timeutil.TimeError",
   "TIMING_INVALID": "trinetra.domain.timing.TimingError",
   "TOKEN_INVALID": "trinetra.domain.tokens.TokenError",
+  "TRANSFER_REJECTED": "trinetra.application.errors.TransferRejectedError",
+  "TRANSFER_TOO_LARGE": "trinetra.application.errors.TransferTooLargeError",
   "TRINETRA_ERROR": "trinetra.errors.TrinetraError"
 }

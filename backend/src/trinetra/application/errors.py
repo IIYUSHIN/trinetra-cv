@@ -30,9 +30,27 @@ class CommandValidationError(ApplicationError):
     default_message = "the command is not valid"
 
 
+class IntakeNotFoundError(ApplicationError):
+    code = "INTAKE_NOT_FOUND"
+    default_message = "no such intake"
+
+
+class TransferTooLargeError(ApplicationError):
+    code = "TRANSFER_TOO_LARGE"
+    default_message = "the upload is larger than the allowed size"
+
+
+class TransferRejectedError(ApplicationError):
+    code = "TRANSFER_REJECTED"
+    default_message = "the upload was rejected"
+
+
 __all__ = [
     "ApplicationConflictError",
     "ApplicationError",
     "CommandValidationError",
+    "IntakeNotFoundError",
     "IntakeStateConflictError",
+    "TransferRejectedError",
+    "TransferTooLargeError",
 ]

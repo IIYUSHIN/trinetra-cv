@@ -28,7 +28,7 @@ EXPECTED_DIRS = {
     "infrastructure/migrations", "infrastructure/migrations/versions",
     # PROPOSED amendment (ERR-CL-021, IMP-0071): the later EIB-04 file tree places the intake workflow in
     # application/intake. Only subpackages that actually exist are listed; each addition is an ERR record.
-    "application/intake",
+    "application/intake", "application/ports",
 }
 
 
