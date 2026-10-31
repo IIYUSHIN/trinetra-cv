@@ -10,6 +10,7 @@
   "evid": "trinetra.domain.evidence.EvidenceId",
   "job": "trinetra.domain.jobs.JobId",
   "lim": "trinetra.domain.limitations.LimitationId",
+  "metric": "trinetra.domain.metrics.MetricId",
   "poldec": "trinetra.domain.policy.PolicyDecisionId",
   "polprof": "trinetra.domain.policy.PolicyProfileId",
   "ref": "trinetra.domain.references.ReferenceId",
