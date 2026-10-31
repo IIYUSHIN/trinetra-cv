@@ -23,6 +23,23 @@
     "LIMITED",
     "UNAVAILABLE"
   ],
+  "CaseAssetRole": [
+    "dataset",
+    "model",
+    "contributor_metadata",
+    "reference",
+    "inference_record",
+    "assessment_profile"
+  ],
+  "CaseLifecycleState": [
+    "PREFLIGHT",
+    "ASSESSING",
+    "RESULTS_AVAILABLE",
+    "INVESTIGATING",
+    "DECISION_READY",
+    "DECIDED",
+    "ATTESTED"
+  ],
   "ClaimState": [
     "SUPPORTED",
     "CONTRADICTED",
@@ -54,23 +71,10 @@
     "STALE",
     "INVALIDATED"
   ],
-  "IntakeState": [
-    "OPEN",
-    "COMMITTED",
-    "ABANDONED"
-  ],
   "OrientationPolicy": [
     "REQUIRE_IDENTITY",
     "IGNORE_EXIF",
     "APPLY_EXIF"
-  ],
-  "PackageSlot": [
-    "dataset",
-    "model",
-    "contributor_metadata",
-    "reference",
-    "inference_records",
-    "assessment_profile"
   ],
   "SystemReadiness": [
     "READY",
@@ -83,10 +87,5 @@
     "FAIL",
     "INCONCLUSIVE",
     "ERROR"
-  ],
-  "TransferState": [
-    "RECEIVED",
-    "ADMITTED",
-    "FAILED"
   ]
 }
