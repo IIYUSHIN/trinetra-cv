@@ -141,3 +141,7 @@ RED recorded before implementation. Mutation 1/1 killed and restored.
 IMP-0297: implemented Raw output digest binding; provisional under ERR-CL-023.
 RED recorded before implementation. Mutation 1/1 killed and restored.
 Final full validation after IMP-0297: 2909 passed, 6 skipped in 36.27s; seven quality gates PASS; both commands exit 0.
+
+IMP-0303: implemented TIIR payload schema; provisional under ERR-CL-023.
+RED recorded before implementation. Mutation 1/1 killed and restored.
+Final full validation after IMP-0303: 2919 passed, 6 skipped in 35.66s; seven quality gates PASS; both commands exit 0.
