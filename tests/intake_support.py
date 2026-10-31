@@ -197,6 +197,7 @@ class MemoryCaseStore:
         self.created = []  # (case, intake_id) in call order
         self.fail_next = None
         self.after_create = None
+        self.saves = []
 
     def get(self, case_id):
         return self.cases.get(case_id)
@@ -213,3 +214,12 @@ class MemoryCaseStore:
         self.created.append((case, intake_id))
         if self.after_create is not None:
             self.after_create()
+
+    def save(self, updated, *, expected_revision):
+        from trinetra.application.errors import StaleCaseRevisionError
+
+        self.saves.append((updated, expected_revision))
+        stored = self.cases[updated.case_id]
+        if stored.case_state_revision != expected_revision:
+            raise StaleCaseRevisionError(details={"actual_revision": stored.case_state_revision.value})
+        self.cases[updated.case_id] = updated

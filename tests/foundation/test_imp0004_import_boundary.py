@@ -30,7 +30,7 @@ EXPECTED_DIRS = {
     # application/intake. Only subpackages that actually exist are listed; each addition is an ERR record.
     "application/intake", "application/ports",
     # PROPOSED amendment (ERR-CL-022, IMP-0092..0094): read-side projections and Preflight planning.
-    "application/preflight", "application/projections",
+    "application/cases", "application/preflight", "application/projections",
 }
 
 

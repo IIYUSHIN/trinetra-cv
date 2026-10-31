@@ -35,6 +35,21 @@ class CaseAlreadyStoredError(ApplicationConflictError):
     default_message = "a case with this id is already stored"
 
 
+class CaseChangeInvalidError(ApplicationError):
+    code = "CASE_CHANGE_INVALID"
+    default_message = "the change did not produce the next revision of the same case"
+
+
+class StaleCaseRevisionError(ApplicationConflictError):
+    code = "CASE_REVISION_STALE"
+    default_message = "the case changed since the revision the caller saw"
+
+
+class UnknownCaseError(ApplicationError):
+    code = "CASE_UNKNOWN"
+    default_message = "no such case"
+
+
 class CommandValidationError(ApplicationError):
     code = "COMMAND_VALIDATION_FAILED"
     default_message = "the command is not valid"
@@ -59,10 +74,13 @@ __all__ = [
     "ApplicationConflictError",
     "ApplicationError",
     "CaseAlreadyStoredError",
+    "CaseChangeInvalidError",
     "CommandValidationError",
     "IntakeNotFoundError",
     "IntakeNotReadyError",
     "IntakeStateConflictError",
+    "StaleCaseRevisionError",
     "TransferRejectedError",
     "TransferTooLargeError",
+    "UnknownCaseError",
 ]
