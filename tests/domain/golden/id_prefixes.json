@@ -1,3 +1,4 @@
 {
+  "asset": "trinetra.domain.assets.AssetId",
   "case": "trinetra.domain.case.CaseId"
 }
