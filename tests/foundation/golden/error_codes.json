@@ -16,6 +16,7 @@
   "CAS_OBJECT_MALFORMED": "trinetra.infrastructure.cas_read.ObjectShapeError",
   "CAS_OBJECT_MISSING": "trinetra.infrastructure.cas_read.ObjectMissingError",
   "CAS_QUARANTINE_INVALID": "trinetra.infrastructure.cas_quarantine.QuarantineError",
+  "CLASS_MAP_INVALID": "trinetra.domain.ontology.ClassMapError",
   "CONFIG_FILE_UNREADABLE": "trinetra.settings.ConfigFileError",
   "CONFIG_INVALID": "trinetra.settings.ConfigError",
   "COUNTER_INVALID": "trinetra.domain.counters.CounterError",
