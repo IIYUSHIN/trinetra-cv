@@ -51,4 +51,9 @@ class AssetLookupPort(Protocol):
     def exists(self, asset_id: AssetId) -> bool: ...
 
 
-__all__ = ["AssetAdmissionPort", "AssetLookupPort", "ByteStream", "QuarantinePort"]
+class AssetRecordReaderPort(Protocol):
+    def get(self, asset_id: AssetId) -> AssetRecord | None:
+        """The authoritative record of an admitted asset, or None when there is no such asset."""
+
+
+__all__ = ["AssetAdmissionPort", "AssetLookupPort", "AssetRecordReaderPort", "ByteStream", "QuarantinePort"]
